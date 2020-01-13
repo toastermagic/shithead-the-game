@@ -511,8 +511,8 @@ class ShitHeadHandler extends GameScene
             {
                 if (this.players.filter((pl) => this.getPlayerStage(pl) === 3).length >= this.players.length - 1)
                 {
-                    this.turnText.text = "Game is over!";
-                    console.log("GAME IS DONE");
+                    this.turnText.text = "Game over!";
+                    this.turnText.setColor("#f0f");
                     return;
                 }
 
