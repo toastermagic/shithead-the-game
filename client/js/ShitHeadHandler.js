@@ -23,7 +23,7 @@ class ShitHeadHandler extends GameScene
         this.readyButton.on("pointerdown", () => {
 
             this.readyButton.visible = false;
-            this.server.send("gamestate startOfGame"); //|broadcastall turn " + this.getPlayerWithLowestCard()
+            this.server.send("gamestate startOfGame");
         });
         this.readyButton.visible = false;
 
@@ -170,7 +170,7 @@ class ShitHeadHandler extends GameScene
             this.readyButton.on("pointerdown", () => {
 
                 this.readyButton.visible = false;
-                this.server.send("gamestatevote inGame"); //|broadcastall turn " + this.getPlayerWithLowestCard()
+                this.server.send("gamestatevote inGame");
             });
 
             // the player inventory can only receive card from the deck
@@ -261,13 +261,13 @@ class ShitHeadHandler extends GameScene
 
                 // creating card strings, shuffling them, then sending to clients
                 var cards = [];
-                for (let i = 0; i < 52; i++) 
+                for (let i = 0; i < 54; i++) 
                    cards.push(Math.floor(i / 13) + ":" + (i % 13 + 1));
-                for (let i = cards.length - 1; i > 0; i--) 
+                /*for (let i = cards.length - 1; i > 0; i--) 
                 {
                     const j = Math.floor(Math.random() * (i + 1));
                     [cards[i], cards[j]] = [cards[j], cards[i]];
-                }
+                }*/
                 this.server.send("broadcastall fillstack take " + cards.join(","));
 
                 var dealTo = "";
@@ -333,9 +333,10 @@ class ShitHeadHandler extends GameScene
                 }
                 
                 const topCard = throwStack.getTopCard();
-                if (topCard && topCard.cardValue === newCard.value && (throwStack.getSameValueDepthFromTop() + this.localPlayer.countCardValues(newCard.value)))
+                if (topCard && topCard.cardValue === newCard.value && (throwStack.getSameValueDepthFromTop() + this.localPlayer.countCardValues(newCard.value)) === 4)
                 {
-                    console.log("PLAYER CAN BURN!!!");
+                    console.log("PLAYER CAN BURN");
+                    return true;
                 }
 
                 const playerStage = this.getPlayerStage(this.localPlayer);
@@ -417,7 +418,8 @@ class ShitHeadHandler extends GameScene
             };
             throwStack.onAddedCardToTop = (newCard) => {
 
-                if (newCard.cardValue === 10 || throwStack.areTopCardsSameValue(4) || (newCard.cardType === JOKER && throwStack.areTopCardsSameValue(2))) // if the top 4 cards are the same, or a 10 is thrown, burn it
+                const burn = newCard.cardValue === 10 || throwStack.areTopCardsSameValue(4) || (newCard.cardType === JOKER && throwStack.areTopCardsSameValue(2)); // if the top 4 cards are the same, or a 10 is thrown, burn it
+                if (burn) 
                 {
                     console.log("BURN!!");
                     //this.getStack("burned").tryMoveAllCards(throwStack.containingCards);
@@ -428,13 +430,16 @@ class ShitHeadHandler extends GameScene
 
                 if (this.isAtTurn()) // only the player at turn should run the following code
                 {
-                    this.readyButton.visible = true;
-                    
                     if (this.turnStartPlayerStage !== this.getPlayerStage(this.localPlayer))
                     {
                         console.log("YOU MAY GO AGAIN");
                         this.turnStartPlayerStage = this.getPlayerStage(this.localPlayer);
                         this.previouslyThrownValueThisRound = null;
+                    }
+
+                    if (!burn)
+                    {
+                        this.readyButton.visible = true;
                     }
 
                     /*if (this.previouslyThrownValueThisRound !== null)
@@ -609,7 +614,7 @@ class ShitHeadHandler extends GameScene
             console.log("mayCardBeThrown()", "8 or 3");
             return cardValue >= underlayingValue;
         }
-        else if (takeStack.containingCards.length === 0 && underlayingCard === 14 && cardValue === 5)
+        else if (takeStack.isEmpty() && underlayingCard === 14 && cardValue === 5)
         {
             console.log("mayCardBeThrown()", "takeStack === 0 and underlaying 14 and 5");
             return true;

@@ -181,12 +181,14 @@ class GameScene extends Phaser.Scene
         {
             for (let k = 0; k < toStacks.length && !fromStack.isEmpty(); k++, t += 50) 
             {
+                var topCard = fromStack.getTopCard();
+                if (topCard === null)
+                    return;
+                toStacks[k].tryToMoveCardOnTop(topCard, true);
+
                 setTimeout(() => {
                     
-                    var topCard = fromStack.getTopCard();
-                    if (topCard === null)
-                        return;
-                    toStacks[k].tryToMoveCardOnTop(topCard, true);
+                   
 
                 }, t);
             }
@@ -372,7 +374,6 @@ class CardStack extends Phaser.GameObjects.Sprite
             console.warn("CardStack.addCard() was called, but the card to add was already in the stack, this should not happen!");
             return;
         }
-        //console.log("add card to", this.stackName);
 
         this.containingCards.push(card);
         this.updateCardPositions();
@@ -385,7 +386,6 @@ class CardStack extends Phaser.GameObjects.Sprite
             console.warn("CardStack.removeCard() was called, but the card to remove was not in the stack, this should not happen!");
             return;
         }
-        //console.log("remove card from", this.stackName);
 
         this.containingCards.splice(this.containingCards.indexOf(card), 1);
         //this.updateCardPositions();
@@ -393,8 +393,8 @@ class CardStack extends Phaser.GameObjects.Sprite
 
     updateCardPositions()
     {
-        this.containingCards.forEach((card) => {
-            card.snapCardTo(this.x + Math.random() * 5, this.y + Math.random() * 5, "Cubic", this.angle + Math.random() * 24 - 12);
+        this.containingCards.forEach((card, index) => {
+            card.snapCardTo(this.x + Math.random() * 5, this.y + Math.random() * 5, "Cubic", this.angle + Math.random() * 24 - 12, (this.containingCards.length - index - 1) * 50);
         });
     }
 
@@ -418,10 +418,8 @@ class CardStack extends Phaser.GameObjects.Sprite
         this.onAddingCardToTop(newCard);
         newCard.setDepth(currentCardDepth++); // render on top
         newCard.snappedToStack.removeCard(newCard);
-        //newCard.snappedToStack.updateCardPositions(); // update old stack, the card is now removed
         newCard.snappedToStack = this; 
         this.addCard(newCard);
-        //this.updateCardPositions();
         this.onAddedCardToTop(newCard);
     }
 
@@ -453,8 +451,6 @@ class CardStack extends Phaser.GameObjects.Sprite
         this.addCard(newCard);
         oldTopCard.snappedToStack = newCard.snappedToStack;
         newCard.snappedToStack = this;
-        //oldTopCard.snappedToStack.updateCardPositions();
-        //this.updateCardPositions();
     }
 
     tryMoveCard(newCard, force = false)
@@ -548,8 +544,8 @@ class CardInventory extends CardStack
         const xCardSplit = this.maxInventoryWidth / this.containingCards.length;
         var xOffset = -(this.containingCards.length - 1) / 2 * xCardSplit;
         var fan = -(this.containingCards.length - 1) / 2;
-        this.containingCards.forEach(card => {
-            card.snapCardTo(this.x + xOffset, this.y, "Back", this.angle + fan++);
+        this.containingCards.forEach((card, index) => {
+            card.snapCardTo(this.x + xOffset, this.y, "Back", this.angle + fan++, (this.containingCards.length - index - 1) * 50);
             xOffset += xCardSplit;
             //card.flipCard(true);
         });
@@ -580,8 +576,8 @@ class CardInventoryVertical extends CardStack
         const yCardSplit = this.maxInventoryHeight / this.containingCards.length;
         var yOffset = -(this.containingCards.length - 1) / 2 * yCardSplit;
         var fan = -(this.containingCards.length - 1) / 2;
-        this.containingCards.forEach(card => {
-            card.snapCardTo(this.x, this.y + yOffset, "Back", this.angle + fan++);
+        this.containingCards.forEach((card, index) => {
+            card.snapCardTo(this.x, this.y + yOffset, "Back", this.angle + fan++, (this.containingCards.length - index - 1) * 50);
             yOffset += yCardSplit;
             //card.flipCard(true);
         });
@@ -701,7 +697,7 @@ class DynamicCard extends Phaser.GameObjects.Sprite
         this.cardVisible = cardVisible;
     }
 
-    snapCardTo(x, y, animation = "Cubic", rotation = 30)
+    snapCardTo(x, y, animation = "Cubic", rotation = 30, delay = 0)
     {
         if (this.x == x && this.y == y)
             return; // the card is already in the right spot
@@ -718,6 +714,7 @@ class DynamicCard extends Phaser.GameObjects.Sprite
             y: y,
             angle: rotation,
             duration: 500,
+            delay: delay,
             ease: animation //https://phaser.io/docs/2.6.2/Phaser.Easing.html
         });
     }
