@@ -35,11 +35,13 @@ class ShitHeadHandler extends GameScene
 
     setTurn(playerName)
     {
-        if (!this.playerAtTurn || playerName !== this.playerAtTurn.name)
-        {
-            this.playerAtTurn = this.getPlayerWithName(playerName);
-            this.onTurnStart(this.playerAtTurn);
-        }
+        //if (!this.playerAtTurn || playerName !== this.playerAtTurn.name)
+        //{
+        if (this.playerAtTurn)
+            this.onTurnWillEnd(this.playerAtTurn);
+        this.playerAtTurn = this.getPlayerWithName(playerName);
+        this.onTurnStart(this.playerAtTurn);
+        //}
     }
 
     getNextTurnPlayer(turnsFurther = 1)
@@ -200,7 +202,7 @@ class ShitHeadHandler extends GameScene
                 var switchTopCardEvent = (newTopCard, oldTopCard) => {
                     
                     newTopCard.flipCard(true);
-                    oldTopCard.flipCard(player.name == this.localPlayer.name);
+                    oldTopCard.flipCard(player == this.localPlayer);
                 }
 
                 player.finalStack1.onCardWantsToSwitchWithTop = switchTopCardCondition;
@@ -224,9 +226,9 @@ class ShitHeadHandler extends GameScene
                     player.inventory.onGetAllowedCardStacks = () => {
                         // the player can move cards from their inventory to the following stacks
                         return [
-                            this.getStack("inventory_final1", player.name),
-                            this.getStack("inventory_final2", player.name),
-                            this.getStack("inventory_final3", player.name)
+                            this.getStack("inventory_final1", player),
+                            this.getStack("inventory_final2", player),
+                            this.getStack("inventory_final3", player)
                         ];
                     };
                 }
@@ -319,17 +321,17 @@ class ShitHeadHandler extends GameScene
             var throwStack = this.getStack("throw");
             throwStack.onCardWantsToGoHere = (newCard) => {
 
-                if (!this.isAtTurn()) // a card should not go here if it is not your turn
+                if (!this.isAtTurn())
                 {
                     console.log("NOT AT TURN");
                     return false;
                 }
-                if (newCard.snappedToStack.stackOwner !== this.localPlayer)
+                else if (newCard.snappedToStack.stackOwner !== this.localPlayer)
                 {
                     console.log("CANNOT TAKE CARD OF OTHER PLAYER")
                     return false;
                 }
-
+                
                 const mayThrow = this.mayCardBeThrown(newCard);
                 const comesFromStack = newCard.snappedToStack;
                 const inventoryIsEmpty = this.localPlayer.inventory.containingCards.length === 0;
@@ -391,14 +393,6 @@ class ShitHeadHandler extends GameScene
 
                 if (this.isAtTurn()) // only the player at turn should run the following code
                 {
-                    var playerInvCards = this.localPlayer.inventory.containingCards.length;
-                    if (playerInvCards < 3)
-                    {
-                        console.log("Taking", 3 - playerInvCards, "cards");
-                        this.dealCards(this.getStack("take"), [this.localPlayer.inventory], 3 - playerInvCards);
-                        this.server.send("broadcast deal " + (3 - playerInvCards) + " take " + stackToString(this.localPlayer.inventory));
-                    }
-
                     this.readyButton.visible = true;
 
                     /*if (this.previouslyThrownValueThisRound !== null)
@@ -427,6 +421,19 @@ class ShitHeadHandler extends GameScene
         this.server.send("broadcast deal " + throwStack.containingCards.length + " throw " + stackToString(this.localPlayer.inventory) + "|broadcastall turn " + this.getNextTurnPlayer().name);
         this.dealCards(throwStack, [this.localPlayer.inventory], throwStack.containingCards.length);
         this.readyButton.visible = false;
+    }
+
+    onTurnWillEnd(playerTurnEnd)
+    {
+        if (this.isAtTurn())
+        {
+            var playerInvCards = this.localPlayer.inventory.containingCards.length;
+            if (playerInvCards < 3)
+            {
+                console.log("Taking", 3 - playerInvCards, "cards");
+                this.server.send("broadcastall deal " + (3 - playerInvCards) + " take " + stackToString(this.localPlayer.inventory));
+            }
+        }
     }
 
     onTurnStart(playerAtTurn)

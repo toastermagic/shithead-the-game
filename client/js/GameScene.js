@@ -176,6 +176,7 @@ class GameScene extends Phaser.Scene
 
     dealCards(fromStack, toStacks, dealAmount = 1)
     {
+        console.log("dealing cards to", toStacks);
         for (let j = 0; j < dealAmount; j++) 
         {
             for (let k = 0; k < toStacks.length && !fromStack.isEmpty(); k++) 
@@ -272,12 +273,15 @@ class GameScene extends Phaser.Scene
     parseStack(str) 
     {
         var s = str.split(":");
-        return this.getStack(s[0], s.length > 1 ? s[1] : null);
+        return this.getStack(s[0], s.length > 1 ? this.getPlayerWithName(s[1]) : null);
     }
 
     getStack(stackName, ownerOwner = null)
     {
-        return this.stacks.find((st) => st.stackName === stackName && st.stackOwner === ownerOwner);
+        var stack = this.stacks.find((st) => st.stackName === stackName && st.stackOwner === ownerOwner);
+        if (!stack)
+            debugger;
+        return stack;
     }
 
     getCard(cardIndex)
@@ -606,6 +610,7 @@ class DynamicCard extends Phaser.GameObjects.Sprite
         this.on("dragend", () => {
 
             const snapStacks = [this.snappedToStack, ...this.snappedToStack.onGetAllowedCardStacks(this)];
+            console.log("snapStacks", snapStacks);
 
             if (!snapStacks || snapStacks.length === 0)
                 return;
