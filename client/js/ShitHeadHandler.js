@@ -55,7 +55,7 @@ class ShitHeadHandler extends GameScene
 
     onJoin(player)   // called when a new player joined 
     {
-        console.log("join", player);
+        console.log("onJoin", player.name);
 
         if (this.players.length > 1 && this.isDealer())
             this.readyButton.visible = true;
@@ -67,42 +67,42 @@ class ShitHeadHandler extends GameScene
     {
         if (this.players.length === 1) // create inventories for the local/first player
         {
-            player.finalStack1 = this.createNormalStack("inventory_final1", 0.2, 0.85, player.name);
-            player.finalStack2 = this.createNormalStack("inventory_final2", 0.5, 0.85, player.name);
-            player.finalStack3 = this.createNormalStack("inventory_final3", 0.8, 0.85, player.name);
-            player.inventory = this.createInventoryStack("inventory", 0.5, 0.95, player.name);
+            player.finalStack1 = this.createNormalStack("inventory_final1", 0.2, 0.85, player);
+            player.finalStack2 = this.createNormalStack("inventory_final2", 0.5, 0.85, player);
+            player.finalStack3 = this.createNormalStack("inventory_final3", 0.8, 0.85, player);
+            player.inventory = this.createInventoryStack("inventory", 0.5, 0.95, player);
         }
         else if (this.players.length === 2) // create inventories for the second player
         { 
             this.add.text(0, 0.65 * this.game.config.height, player.name, {fixedWidth: 0.5 * this.game.config.width, align: "left"});
-            player.finalStack1 = this.createNormalStack("inventory_final1", 0.07, 0.25, player.name);
+            player.finalStack1 = this.createNormalStack("inventory_final1", 0.07, 0.25, player);
             player.finalStack1.setAngle(90);
-            player.finalStack2 = this.createNormalStack("inventory_final2", 0.07, 0.4, player.name);
+            player.finalStack2 = this.createNormalStack("inventory_final2", 0.07, 0.4, player);
             player.finalStack2.setAngle(90);
-            player.finalStack3 = this.createNormalStack("inventory_final3", 0.07, 0.55, player.name);
+            player.finalStack3 = this.createNormalStack("inventory_final3", 0.07, 0.55, player);
             player.finalStack3.setAngle(90);
-            player.inventory = this.createVerticalInventoryStack("inventory", 0, 0.4, player.name);
+            player.inventory = this.createVerticalInventoryStack("inventory", 0, 0.4, player);
         }
         else if (this.players.length === 3) // create inventories for the third player
         {
-            this.add.text(0.5 * this.game.config.width, 0.65 * this.game.config.height, player.name, {fixedWidth: 0.5 * this.game.config.width, align: "right"});
-            player.finalStack1 = this.createNormalStack("inventory_final3", 0.93, 0.25, player.name);
-            player.finalStack1.setAngle(-90);
-            player.finalStack2 = this.createNormalStack("inventory_final2", 0.93, 0.4, player.name);
-            player.finalStack2.setAngle(-90);
-            player.finalStack3 = this.createNormalStack("inventory_final1", 0.93, 0.55, player.name);
-            player.finalStack3.setAngle(-90);
-            player.inventory = this.createVerticalInventoryStack("inventory", 1, 0.4, player.name);
-            player.inventory.cardRotationOffset = -90;
+            this.add.text(0.25 * this.game.config.width, 0.14 * this.game.config.height, player.name, {fixedWidth: 0.5 * this.game.config.width, align: "center"});
+            player.finalStack1 = this.createNormalStack("inventory_final3", 0.3, 0.04, player);
+            player.finalStack2 = this.createNormalStack("inventory_final2", 0.5, 0.04, player);
+            player.finalStack3 = this.createNormalStack("inventory_final1", 0.7, 0.04, player);
+            player.inventory = this.createInventoryStack("inventory", 0.5, 0, player);
+            player.inventory.cardRotationOffset = 180;
         }
         else if (this.players.length === 4) // create inventories for the fourth player
         {
-            this.add.text(0.25 * this.game.config.width, 0.14 * this.game.config.height, player.name, {fixedWidth: 0.5 * this.game.config.width, align: "center"});
-            player.finalStack1 = this.createNormalStack("inventory_final3", 0.3, 0.04, player.name);
-            player.finalStack2 = this.createNormalStack("inventory_final2", 0.5, 0.04, player.name);
-            player.finalStack3 = this.createNormalStack("inventory_final1", 0.7, 0.04, player.name);
-            player.inventory = this.createInventoryStack("inventory", 0.5, 0, player.name);
-            player.inventory.cardRotationOffset = 180;
+            this.add.text(0.5 * this.game.config.width, 0.65 * this.game.config.height, player.name, {fixedWidth: 0.5 * this.game.config.width, align: "right"});
+            player.finalStack1 = this.createNormalStack("inventory_final3", 0.93, 0.25, player);
+            player.finalStack1.setAngle(-90);
+            player.finalStack2 = this.createNormalStack("inventory_final2", 0.93, 0.4, player);
+            player.finalStack2.setAngle(-90);
+            player.finalStack3 = this.createNormalStack("inventory_final1", 0.93, 0.55, player);
+            player.finalStack3.setAngle(-90);
+            player.inventory = this.createVerticalInventoryStack("inventory", 1, 0.4, player);
+            player.inventory.cardRotationOffset = -90;
         }
         else
         {
@@ -196,7 +196,7 @@ class ShitHeadHandler extends GameScene
                 };
 
                 // it should only be switched if the card came from the players inventory
-                var switchTopCardCondition = (newTopCard, _oldTopCard) => newTopCard.snappedToStack.stackName === "inventory" && newTopCard.snappedToStack.stackOwner === player.name;
+                var switchTopCardCondition = (newTopCard, _oldTopCard) => newTopCard.snappedToStack.stackName === "inventory" && newTopCard.snappedToStack.stackOwner === player;
                 var switchTopCardEvent = (newTopCard, oldTopCard) => {
                     
                     newTopCard.flipCard(true);
@@ -324,6 +324,11 @@ class ShitHeadHandler extends GameScene
                     console.log("NOT AT TURN");
                     return false;
                 }
+                if (newCard.snappedToStack.stackOwner !== this.localPlayer)
+                {
+                    console.log("CANNOT TAKE CARD OF OTHER PLAYER")
+                    return false;
+                }
 
                 const mayThrow = this.mayCardBeThrown(newCard);
                 const comesFromStack = newCard.snappedToStack;
@@ -337,8 +342,6 @@ class ShitHeadHandler extends GameScene
                         return false;
                     if (newCard !== comesFromStack.getTopCard()) // only the top card can be thrown
                         return false;
-                    
-
 
                     if (comesFromStack.containingCards.length === 1) // this is a hidden final card
                     {

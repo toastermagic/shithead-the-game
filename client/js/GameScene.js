@@ -1,12 +1,13 @@
 function stackToString(stack)
 {
-    return stack.stackName + (stack.stackOwner === null ? "" : (":" + stack.stackOwner));
+    return stack.stackName + (stack.stackOwner === null ? "" : (":" + stack.stackOwner.name));
 }
 
 class GameScene extends Phaser.Scene 
 {
     constructor(localPlayerName) {
         super({key: "GameScene"});
+        console.log("YOUR NAME", localPlayerName);
         this.localPlayer = {
             name: localPlayerName
         };
@@ -29,7 +30,7 @@ class GameScene extends Phaser.Scene
         var statusText = this.add.text(0, 0, "connecting...");
         statusText.setFontSize(12);
 
-        this.server = new WebSocket("ws://192.168.0.200:1987", "cards");
+        this.server = new WebSocket("ws://192.168.137.104:1987", "cards");
         var didConnect = false;
         this.server.onopen = () => {
 
@@ -56,25 +57,32 @@ class GameScene extends Phaser.Scene
 
                     case "playersalreadyjoined":
                         var playerNames = args[1].split(",");
-                        playerNames.forEach((playerName) => {
-                            var playerObject = {
-                                name: playerName
+                        console.log("playersalreadyjoined before", playerNames, this.players);
+                        for(let j = playerNames.length - 1; j >= 0; j--)
+                        {
+                            var playerObject = { 
+                                name: playerNames[j],
+                                id: this.players.length
                             };
                             this.players.unshift(playerObject);
                             this.onJoin(playerObject);
-                        });
+                        }
+                        console.log("playersalreadyjoined", playerNames, this.players);
                         continue;
 
                     case "playerjoined":
                         var playerObject = {
-                            name: args[1]
+                            name: args[1],
+                            id: this.players.length
                         };
                         this.players.push(playerObject);
                         this.onJoin(playerObject);
+                        console.log("playerjoined", this.players);
                         continue;
 
                     case "playerleft":
                         var playerObject = this.players.splice(this.players.indexOf(args[1]), 1)[0];
+                        console.log("playerleft", playerObject);
                         this.onLeft(playerObject);
                         continue;
 
@@ -98,9 +106,7 @@ class GameScene extends Phaser.Scene
                         cardStrings.map((str) => {
                             var s = str.split(":");
                             this.createCard(deckStack, parseInt(s[0]), parseInt(s[1]), s.length > 2);
-                            //new DynamicCard(this, deckStack, parseInt(s[0]), parseInt(s[1]), s.length > 2);
                         });
-                        //deckStack.updateCardPositions();
                         continue;
 
                     case "movecard": // movecard <cardIndex> <toStack> 

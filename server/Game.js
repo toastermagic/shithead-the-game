@@ -20,7 +20,8 @@ module.exports = class Game
             return false;
 
         this.sentInit(player);
-        this.sendPlayersAlreadyJoined(player, this.players);
+        if (this.players.length > 0)
+            this.sendPlayersAlreadyJoined(player, this.players);
         for(let i = 0; i < this.players.length; i++)
             this.sendPlayerJoined(this.players[i], player);
 
