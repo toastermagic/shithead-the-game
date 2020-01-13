@@ -6,6 +6,14 @@ class ShitHeadHandler extends GameScene
 
         this.registerCommand("turn", (args) => this.setTurn(args[1]));
     }
+    
+    preload() 
+    {
+        //this.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
+        this.load.spritesheet("cards", "/img/cards.png", { frameWidth: 72, frameHeight: 96 });
+        this.load.spritesheet("explosion", "/img/explosion.png", { frameWidth: 64, frameHeight: 64 });
+        this.load.image("cardstack", "/img/cardstack.png");
+    }
 
     create() 
     {
@@ -13,10 +21,10 @@ class ShitHeadHandler extends GameScene
         //const playerNameTextStyle = {padding: 3, fontSize: 18, fixedWidth: 0.5 * this.game.config.width, align: "center"};
         //this.playerNameText = this.add.text(0.25 * this.game.config.width, 0.04 * this.game.config.height, this.localPlayer.name, playerNameTextStyle);
         //this.playerNameText.setDepth(1000000);
-        const turnTextStyle = {padding: 3, fontSize: 20, fixedWidth: 0.5 * this.game.config.width, align: "center"};
-        this.turnText = this.add.text(0.25 * this.game.config.width, 0.35 * this.game.config.height, "", turnTextStyle);
+        const turnTextStyle = {padding: 3, fontSize: 20, fixedWidth: 0.5 * this.game.config.width, align: "center", fontFamily: "Wellfleet", color: "#999"};
+        this.turnText = this.add.text(0.25 * this.game.config.width, 0.35 * this.game.config.height, "Waiting...", turnTextStyle);
         this.turnText.setDepth(1000000);
-        const readyButtonStyle = {backgroundColor: "#271", padding: 6, fontSize: 20, fixedWidth: 0.4 * this.game.config.width, align: "center"};
+        const readyButtonStyle = {backgroundColor: "#271", padding: 6, fontSize: 20, fixedWidth: 0.4 * this.game.config.width, align: "center", fontFamily: "Wellfleet"};
         this.readyButton = this.add.text(0.3 * this.game.config.width, 0.65 * this.game.config.height, "Ready", readyButtonStyle);
         this.readyButton.setInteractive();
         this.readyButton.text = "Start Game";
@@ -27,8 +35,19 @@ class ShitHeadHandler extends GameScene
         });
         this.readyButton.visible = false;
 
+        
         this.createNormalStack("take", 0, 0).setAngle(-45);
-        this.createNormalStack("throw", 0.5, 0.5);
+        var throwStack = this.createNormalStack("throw", 0.5, 0.5);
+
+        this.anims.create({
+            key: "explode",
+            frames: this.anims.generateFrameNumbers("explosion"),
+            frameRate: 60
+        })
+
+        this.explosion = this.add.sprite(throwStack.x, throwStack.y, "explosion");
+        this.explosion.setScale((this.game.config.width / this.explosion.width) / 2);
+        this.explosion.setFrame(24);
 
         this.createStacksForPlayer(this.localPlayer);
     }
@@ -69,6 +88,7 @@ class ShitHeadHandler extends GameScene
     {
         if (this.players.length === 1) // create inventories for the local/first player
         {
+            player.playerNameText = this.add.text(0.25 * this.game.config.width, 0.72 * this.game.config.height, "YOU", {fixedWidth: 0.5 * this.game.config.width, align: "center", fontSize: 16, fontFamily: "Pacifico"});
             player.finalStack1 = this.createNormalStack("inventory_final1", 0.2, 0.85, player);
             player.finalStack2 = this.createNormalStack("inventory_final2", 0.5, 0.85, player);
             player.finalStack3 = this.createNormalStack("inventory_final3", 0.8, 0.85, player);
@@ -76,7 +96,7 @@ class ShitHeadHandler extends GameScene
         }
         else if (this.players.length === 2) // create inventories for the second player
         { 
-            player.playerNameText = this.add.text(0.02 * this.game.config.width, 0.65 * this.game.config.height, player.name, {fixedWidth: 0.5 * this.game.config.width, align: "left", fontSize: 12});
+            player.playerNameText = this.add.text(0.02 * this.game.config.width, 0.62 * this.game.config.height, player.name, {fixedWidth: 0.5 * this.game.config.width, align: "left", fontSize: 16, fontFamily: "Pacifico"});
             player.finalStack1 = this.createNormalStack("inventory_final1", 0.07, 0.25, player);
             player.finalStack1.setAngle(90);
             player.finalStack2 = this.createNormalStack("inventory_final2", 0.07, 0.4, player);
@@ -87,7 +107,7 @@ class ShitHeadHandler extends GameScene
         }
         else if (this.players.length === 3) // create inventories for the third player
         {
-            player.playerNameText = this.add.text(0.25 * this.game.config.width, 0.14 * this.game.config.height, player.name, {fixedWidth: 0.5 * this.game.config.width, align: "center", fontSize: 12});
+            player.playerNameText = this.add.text(0.25 * this.game.config.width, 0.13 * this.game.config.height, player.name, {fixedWidth: 0.5 * this.game.config.width, align: "center", fontSize: 16, fontFamily: "Pacifico"});
             player.finalStack1 = this.createNormalStack("inventory_final3", 0.3, 0.04, player);
             player.finalStack2 = this.createNormalStack("inventory_final2", 0.5, 0.04, player);
             player.finalStack3 = this.createNormalStack("inventory_final1", 0.7, 0.04, player);
@@ -96,7 +116,7 @@ class ShitHeadHandler extends GameScene
         }
         else if (this.players.length === 4) // create inventories for the fourth player
         {
-            player.playerNameText = this.add.text(0.5 * this.game.config.width, 0.65 * this.game.config.height, player.name, {fixedWidth: 0.48 * this.game.config.width, align: "right", fontSize: 12});
+            player.playerNameText = this.add.text(0.5 * this.game.config.width, 0.62 * this.game.config.height, player.name, {fixedWidth: 0.48 * this.game.config.width, align: "right", fontSize: 16, fontFamily: "Pacifico"});
             player.finalStack1 = this.createNormalStack("inventory_final3", 0.93, 0.25, player);
             player.finalStack1.setAngle(-90);
             player.finalStack2 = this.createNormalStack("inventory_final2", 0.93, 0.4, player);
@@ -378,6 +398,7 @@ class ShitHeadHandler extends GameScene
                 {
                     console.log("BURN!!");
                     //this.getStack("burned").tryMoveAllCards(throwStack.containingCards);
+                    this.explosion.anims.play("explode");
                     this.dealCards(throwStack, [this.getStack("burned")], throwStack.containingCards.length);
                     this.previouslyThrownValueThisRound = null;
                     this.takeMinCards();

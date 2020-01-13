@@ -20,14 +20,9 @@ class GameScene extends Phaser.Scene
         this.gameState = "waiting";
     }
 
-    preload() {
-        this.load.spritesheet("cards", "/img/cards.png", { frameWidth: 72, frameHeight: 96 });
-        this.load.image("cardstack", "/img/cardstack.png");
-    }
-
     create() {
         
-        var statusText = this.add.text(0, 0, "connecting...");
+        var statusText = this.add.text(0, 10, "Connecting...", {fixedWidth: this.game.config.width, align: "center", fontFamily: "Wellfleet"});
         statusText.setFontSize(12);
         statusText.setDepth(10000000);
 
@@ -36,7 +31,7 @@ class GameScene extends Phaser.Scene
         this.server.onopen = () => {
 
             didConnect = true;
-            statusText.text = "ok";
+            statusText.text = "";
             this.server.send("setplayer " + this.localPlayer.name + "|joinany");
         };
         this.server.onmessage = (event) => {
@@ -133,16 +128,16 @@ class GameScene extends Phaser.Scene
         };
         this.server.onerror = (err) => {
 
-            statusText.text = "error: " + err;
+            statusText.text = "Error: " + err;
         };
         this.server.onclose = (event) => {
 
             if (!didConnect)
-                statusText.text = "could not connect";
+                statusText.text = "Could not connect.";
             else if (event.wasClean) 
-                statusText.text = `connection closed, code=${event.code} reason=${event.reason}`;
+                statusText.text = `Connection closed, code=${event.code} reason=${event.reason}.`;
             else
-                statusText.text = "connection died";
+                statusText.text = "Connection died.";
         };
 
         if (this.input.keyboard.on("keydown_A", () => {
