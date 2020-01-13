@@ -10,9 +10,9 @@ class ShitHeadHandler extends GameScene
     preload() 
     {
         //this.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
-        this.load.spritesheet("cards", "/img/cards.png", { frameWidth: 72, frameHeight: 96 });
-        this.load.spritesheet("explosion", "/img/explosion.png", { frameWidth: 64, frameHeight: 64 });
-        this.load.image("cardstack", "/img/cardstack.png");
+        this.load.spritesheet("cards", "/game/img/cards.png", { frameWidth: 72, frameHeight: 96 });
+        this.load.spritesheet("explosion", "/game/img/explosion.png", { frameWidth: 64, frameHeight: 64 });
+        this.load.image("cardstack", "/game/img/cardstack.png");
     }
 
     create() 
