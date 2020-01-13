@@ -339,7 +339,6 @@ class ShitHeadHandler extends GameScene
                     || comesFromStack === this.localPlayer.finalStack2 
                     || comesFromStack === this.localPlayer.finalStack3))
                 {
-                    debugger;
                     if (!inventoryIsEmpty) // only allow the final stacks if the main inventory is empty
                         return false;
                     if (newCard !== comesFromStack.getTopCard()) // only the top card can be thrown
@@ -372,7 +371,7 @@ class ShitHeadHandler extends GameScene
                         this.previouslyThrownValueThisRound = null;
                     }
                 }
-                /*else if (newCard.snappedToStack.stackName === "inventory_final1"
+                else if (newCard.snappedToStack.stackName === "inventory_final1"
                     || newCard.snappedToStack.stackName === "inventory_final2"
                     || newCard.snappedToStack.stackName === "inventory_final3")
                 {
@@ -380,7 +379,7 @@ class ShitHeadHandler extends GameScene
                     {
                         this.previouslyThrownValueThisRound = null;
                     }
-                }*/
+                }
             };
             throwStack.onAddedCardToTop = (newCard) => {
 
@@ -427,11 +426,12 @@ class ShitHeadHandler extends GameScene
     {
         if (this.isAtTurn())
         {
-            var playerInvCards = this.localPlayer.inventory.containingCards.length;
+            const playerInvCards = this.localPlayer.inventory.containingCards.length;
             if (playerInvCards < 3)
             {
-                console.log("Taking", 3 - playerInvCards, "cards");
-                this.server.send("broadcastall deal " + (3 - playerInvCards) + " take " + stackToString(this.localPlayer.inventory));
+                //console.log("Taking", 3 - playerInvCards, "cards");
+                this.dealCards(getStack("take"), [this.localPlayer.inventory], 3 - playerInvCards);
+                this.server.send("broadcast deal " + (3 - playerInvCards) + " take " + stackToString(this.localPlayer.inventory));
             }
         }
     }
