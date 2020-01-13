@@ -14,7 +14,7 @@ class ShitHeadHandler extends GameScene
         //this.playerNameText = this.add.text(0.25 * this.game.config.width, 0.04 * this.game.config.height, this.localPlayer.name, playerNameTextStyle);
         //this.playerNameText.setDepth(1000000);
         const turnTextStyle = {padding: 3, fontSize: 20, fixedWidth: 0.5 * this.game.config.width, align: "center"};
-        this.turnText = this.add.text(0.25 * this.game.config.width, 0.35 * this.game.config.height, "waiting", turnTextStyle);
+        this.turnText = this.add.text(0.25 * this.game.config.width, 0.35 * this.game.config.height, "", turnTextStyle);
         this.turnText.setDepth(1000000);
         const readyButtonStyle = {backgroundColor: "#271", padding: 6, fontSize: 20, fixedWidth: 0.4 * this.game.config.width, align: "center"};
         this.readyButton = this.add.text(0.3 * this.game.config.width, 0.65 * this.game.config.height, "Ready", readyButtonStyle);
@@ -76,7 +76,7 @@ class ShitHeadHandler extends GameScene
         }
         else if (this.players.length === 2) // create inventories for the second player
         { 
-            this.add.text(0, 0.65 * this.game.config.height, player.name, {fixedWidth: 0.5 * this.game.config.width, align: "left"});
+            player.playerNameText = this.add.text(0.02 * this.game.config.width, 0.65 * this.game.config.height, player.name, {fixedWidth: 0.5 * this.game.config.width, align: "left", fontSize: 12});
             player.finalStack1 = this.createNormalStack("inventory_final1", 0.07, 0.25, player);
             player.finalStack1.setAngle(90);
             player.finalStack2 = this.createNormalStack("inventory_final2", 0.07, 0.4, player);
@@ -87,7 +87,7 @@ class ShitHeadHandler extends GameScene
         }
         else if (this.players.length === 3) // create inventories for the third player
         {
-            this.add.text(0.25 * this.game.config.width, 0.14 * this.game.config.height, player.name, {fixedWidth: 0.5 * this.game.config.width, align: "center"});
+            player.playerNameText = this.add.text(0.25 * this.game.config.width, 0.14 * this.game.config.height, player.name, {fixedWidth: 0.5 * this.game.config.width, align: "center", fontSize: 12});
             player.finalStack1 = this.createNormalStack("inventory_final3", 0.3, 0.04, player);
             player.finalStack2 = this.createNormalStack("inventory_final2", 0.5, 0.04, player);
             player.finalStack3 = this.createNormalStack("inventory_final1", 0.7, 0.04, player);
@@ -96,7 +96,7 @@ class ShitHeadHandler extends GameScene
         }
         else if (this.players.length === 4) // create inventories for the fourth player
         {
-            this.add.text(0.5 * this.game.config.width, 0.65 * this.game.config.height, player.name, {fixedWidth: 0.5 * this.game.config.width, align: "right"});
+            player.playerNameText = this.add.text(0.5 * this.game.config.width, 0.65 * this.game.config.height, player.name, {fixedWidth: 0.48 * this.game.config.width, align: "right", fontSize: 12});
             player.finalStack1 = this.createNormalStack("inventory_final3", 0.93, 0.25, player);
             player.finalStack1.setAngle(-90);
             player.finalStack2 = this.createNormalStack("inventory_final2", 0.93, 0.4, player);
@@ -172,6 +172,8 @@ class ShitHeadHandler extends GameScene
                 this.readyButton.visible = false;
                 this.server.send("gamestatevote inGame");
             });
+            this.turnText.text = "Switching...";
+            this.turnText.setColor("#ff0");
 
             // the player inventory can only receive card from the deck
             this.players.forEach((player) => {
@@ -363,58 +365,11 @@ class ShitHeadHandler extends GameScene
                     this.previouslyThrownValueThisRound = newCard.value;
                     return mayThrow;
                 }
-                else
-                {
-                    console.log("GAME IS OVER");
-                }
-                /*const comesFromStack = newCard.snappedToStack;
-                const inventoryIsEmpty = this.localPlayer.inventory.containingCards.length === 0;
-                if ((comesFromStack === this.localPlayer.finalStack1 
-                    || comesFromStack === this.localPlayer.finalStack2 
-                    || comesFromStack === this.localPlayer.finalStack3))
-                {
-                    if (!inventoryIsEmpty) // only allow the final stacks if the main inventory is empty
-                        return false;
-                    if (newCard !== comesFromStack.getTopCard()) // only the top card can be thrown
-                        return false;
-
-                    if (comesFromStack.containingCards.length === 1) // this is a hidden final card
-                    {
-                        newCard.flipCard(true);
-                        if (!mayThrow)
-                        {
-                            setTimeout(() => newCard.flipCard(false), 2000);
-                            this.takeThrowStack();
-                        }
-                    }
-                }
-
-                if (!mayThrow)
-                    console.log("MAY NOT BE THROWN!");
-                return mayThrow;*/
             };
             throwStack.onAddingCardToTop = (newCard) => {
 
                 this.previouslyThrownValueThisRound = newCard.cardValue;
                 newCard.flipCard(true);
-
-                /*if (newCard.snappedToStack.stackName === "inventory")
-                {
-                    if (newCard.snappedToStack.containingCards.length === 1)
-                    {
-                        console.log("INVENTORY IS EMPTY");
-                        this.previouslyThrownValueThisRound = null;
-                    }
-                }*/
-                /*else if (newCard.snappedToStack.stackName === "inventory_final1"
-                    || newCard.snappedToStack.stackName === "inventory_final2"
-                    || newCard.snappedToStack.stackName === "inventory_final3")
-                {
-                    if (newCard.snappedToStack.length === 1)
-                    {
-                        this.previouslyThrownValueThisRound = null;
-                    }
-                }*/
             };
             throwStack.onAddedCardToTop = (newCard) => {
 
@@ -500,6 +455,8 @@ class ShitHeadHandler extends GameScene
 
     onTurnWillEnd(playerTurnEnd)
     {
+        playerTurnEnd.playerNameText.setColor("#fff");
+
         if (this.isAtTurn())
             this.takeMinCards();
     }
@@ -509,27 +466,15 @@ class ShitHeadHandler extends GameScene
         this.previouslyThrownValueThisRound = null;
         this.turnStartPlayerStage = this.getPlayerStage(playerAtTurn);
         this.turnText.text = playerAtTurn.name + "'s turn!";
+        this.turnText.setColor(this.isAtTurn() ? "#0f0" : "#fff");
+        playerAtTurn.playerNameText.setColor("#0f0");
 
         if (this.isAtTurn())
         {
-            this.turnText.text = "Your turn!";
-            this.tweens.add({
-                targets: this.turnText,
-                yoyo: true,
-                y: 0.3 * this.game.config.height,
-                scaleX: 1.4,
-                scaleY: 1.4,
-                duration: 400,
-                hold: 200,
-                ease: "Cubic"
-            });
-
             var shouldTryThrow = false;
             if (this.turnStartPlayerStage === 0)
             {
                 shouldTryThrow = !this.localPlayer.inventory.containingCards.every((card) => !this.mayCardBeThrown(card));
-                if (!shouldTryThrow)
-                    debugger;
             }
             else if (this.turnStartPlayerStage === 1)
             {
@@ -543,20 +488,41 @@ class ShitHeadHandler extends GameScene
             }
             else
             {
-                console.log("GAME IS OVER");
+                if (this.players.filter((pl) => this.getPlayerStage(pl) === 3).length >= this.players.length - 1)
+                {
+                    this.turnText.text = "Game is over!";
+                    console.log("GAME IS DONE");
+                    return;
+                }
+
+                // this player is out, go to next player
+                this.server.send("broadcastall turn " + this.getNextTurnPlayer().name);
+                return;
             }
+
+            this.turnText.text = "Your turn!";
+            this.tweens.add({
+                targets: this.turnText,
+                yoyo: true,
+                y: 0.3 * this.game.config.height,
+                scaleX: 1.4,
+                scaleY: 1.4,
+                duration: 400,
+                hold: 200,
+                ease: "Cubic"
+            });
 
             if (!shouldTryThrow)
             {
-                console.log("Player cant do nothing in his turn! Has to take!");
-                setTimeout(() =>  this.takeThrowStack(), 2000);
+                this.turnText.text = "Oof";
+                setTimeout(() => this.takeThrowStack(), 500);
             }
-            else
+            /*else
             {
                 this.localPlayer.inventory.containingCards.filter((card) => this.mayCardBeThrown(card)).forEach((card) => {
                     console.log("You can lay ", card.cardType, card.cardValue);
                 });
-            }
+            }*/
         }
         else
         {
