@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://fonts.googleapis.com/css?family=Pacifico|Wellfleet&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <title>Shithead: The Game</title>
+</head>
+<body>
+    <h3 id="main-header" class="text-center">Shithead<small class="text-muted"> The Game</small></h3>
+    <div class="container">
+        <div class="space"></div>
+        {% for problem in problems %}
+        <div class="alert alert-danger space">
+            <strong>Error:</strong> {{problem}}
+        </div>
+        {% endfor %}
+        
+        {% if playerName != null %}
+            <h4 class="text-success">Welcome back, {{playerName}}!</h4>
+            <p>You are ready to play.</p>
+            <a href="/game" type="button" class="btn btn-primary btn-lg btn-block">Join newest room</a>
+            <a href="/logout" type="button" class="btn btn-danger btn-sm btn-block">Logout</a>
+        {% else %}
+            <p>Before you can play, you must enter a name to identify yourself.</p>
+            <form action="/setName" method="POST">
+                <input type="text" minlength="2" class="form-control-plaintext" name="name" placeholder="enter your name here">
+                <input type="submit" class="btn btn-primary btn-lg btn-block" value="Set name">
+            </form>
+        {% endif %}
+
+    </div>
+    
+
+
+    
+</body>
+</html>

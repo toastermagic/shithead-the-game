@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Shithead: The Game</title>
+    <!--<script type="text/javascript" src="https://cdn.rawgit.com/alexgibson/shake.js/master/shake.js"></script>-->
+    <link href="https://fonts.googleapis.com/css?family=Pacifico|Wellfleet&display=swap" rel="stylesheet">
+    <script src="/js/phaser.min.js"></script>
+    <script src="/js/GameScene.js"></script>
+    <script src="/js/{{gameName}}Handler.js"></script>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/game.css">
+</head>
+<body>
+    <div style="font-family:'Pacifico'; position:absolute; visibility:hidden;">.</div>
+    <div style="font-family:'Wellfleet'; position:absolute; visibility:hidden;">.</div>
+    <div id="game">
+
+    </div>
+    <script>
+        var config = {
+            type: Phaser.AUTO,
+            width: Math.min(window.innerWidth, window.innerHeight * (3 / 4)),
+            height: window.innerHeight,
+            /*pixelArt: true,*/
+            physics: {
+                default: "arcade"
+            },
+            scene: [new {{gameName}}Handler("{{playerName}}")]
+        };
+
+        var game = new Phaser.Game(config);
+    </script>
+</body>
+</html>

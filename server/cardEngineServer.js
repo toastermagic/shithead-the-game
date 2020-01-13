@@ -5,7 +5,7 @@ var players = [];
 var games = [new Game("game0", 4)];
 var anyGameIndex = 0;
 
-const server = new WebSocket.Server({port: 1987});
+const server = new WebSocket.Server({port: 81});
 server.on("connection", (socket) => {
 
     if (socket.protocol !== "cards")
@@ -58,6 +58,7 @@ server.on("connection", (socket) => {
                         if (true || socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket.CLOSING)
                         {
                             console.log("player overtook lingering socket", existingPlayer.name);
+                            existingPlayer.socket.close();
                             existingPlayer.socket = socket;
                             continue;
                         }
@@ -84,7 +85,14 @@ server.on("connection", (socket) => {
                     if (!game || !player)
                     {
                         console.warn("game or player does not exist");
-                        continue;
+                        socket.close(1011, "game or player doesn't exist");
+                        break;
+                    }
+                    if (game.inGame())
+                    {
+                        console.warn("game already started, creating new game...");
+                        game = new Game("game" + ++anyGameIndex, 4);
+                        games.push(game);
                     }
                     if (player.joinedGame !== null)
                     {
@@ -93,9 +101,9 @@ server.on("connection", (socket) => {
                     }
                     if (!game.letJoin(player))
                     {
-                        game = new Game("game" + ++anyGameIndex, 4);
-                        games.push(game);
-                        game.letJoin(player);
+                        console.warn(player.name, "cannot join", game.name);
+                        socket.close(1011, "cannot join room " + game.name);
+                        break;
                     }
                     socket.send("setmaster " + game.players[0].name);
                     continue;
@@ -105,12 +113,13 @@ server.on("connection", (socket) => {
                     if (!game || !player)
                     {
                         console.warn("game or player does not exist");
-                        continue;
+                        socket.close(1011, "game or player doesn't exist");
+                        break;
                     }
                     if (game.inGame())
                     {
-                        console.warn("game already started");
-                        continue;
+                        socket.close(1011, game.name + " already started");
+                        break;
                     }
                     if (player.joinedGame !== null)
                     {
@@ -119,8 +128,9 @@ server.on("connection", (socket) => {
                     }
                     if (!game.letJoin(player))
                     {
-                        console.log(player.name, "cannot join", game.name);
-                        continue;
+                        console.warn(player.name, "cannot join", game.name);
+                        socket.close(1011, "cannot join room " + game.name);
+                        break;
                     }
                     socket.send("setmaster " + game.players[0].name);
                     continue;

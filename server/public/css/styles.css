@@ -1,0 +1,15 @@
+* {
+	margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Wellfleet";
+}
+
+#main-header {
+    margin: 0.5em;
+    font-family: "Pacifico";
+}
+#main-header .text-muted {
+    font-size: 0.6em;
+}
+
