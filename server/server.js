@@ -16,8 +16,7 @@ server.on("connection", (socket) => {
 
     if (socket.protocol !== "cards")
     {
-        console.log("wrong protocol");
-        socket.close();
+        socket.close(1000, "unsupported protocol");
         return;
     }
 
@@ -86,35 +85,48 @@ server.on("connection", (socket) => {
                     }
                     continue;
 
-                case "join":
-                    /*var game = games[parseInt(args[1])];
-                    if (!game || !player)
-                    {
-                        console.warn("game or player does not exist");
-                        continue;
-                    }*/
+                case "joinany":
                     var game = games[gameIndex];
                     if (!game || !player)
                     {
                         console.warn("game or player does not exist");
                         continue;
                     }
-                    /*if (game.inGame())
+                    if (player.joinedGame !== null)
                     {
-                        console.warn("game already started");
-                        continue;
-                    }*/
-                    if (game.inGame())
-                    {
-                        game = new Game("game" + ++gameIndex, 4);
-                        games.push(game);
+                        console.warn("player already in a game, leaving previous game...", player.name);
+                        player.joinedGame.letLeave(player);
                     }
                     if (!game.letJoin(player))
                     {
-                        console.warn("player already in a game", player.name, "leaving...");
-                        game.letLeave(player);
-                        game.letJoin(player)
-                        //continue;
+                        game = new Game("game" + ++gameIndex, 4);
+                        games.push(game);
+                        game.letJoin(player);
+                    }
+                    socket.send("setmaster " + game.players[0].name);
+                    continue;
+
+                case "join":
+                    var game = games[parseInt(args[1])];
+                    if (!game || !player)
+                    {
+                        console.warn("game or player does not exist");
+                        continue;
+                    }
+                    if (game.inGame())
+                    {
+                        console.warn("game already started");
+                        continue;
+                    }
+                    if (player.joinedGame !== null)
+                    {
+                        console.warn("player already in a game, leaving previous game...", player.name);
+                        player.joinedGame.letLeave(player);
+                    }
+                    if (!game.letJoin(player))
+                    {
+                        console.log(player.name, "cannot join", game.name);
+                        continue;
                     }
                     socket.send("setmaster " + game.players[0].name);
                     continue;

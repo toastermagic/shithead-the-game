@@ -29,14 +29,15 @@ class GameScene extends Phaser.Scene
         
         var statusText = this.add.text(0, 0, "connecting...");
         statusText.setFontSize(12);
+        statusText.setDepth(10000000);
 
-        this.server = new WebSocket("ws://192.168.137.104:1987", "cards");
+        this.server = new WebSocket("ws://localhost:1987", "cards");
         var didConnect = false;
         this.server.onopen = () => {
 
             didConnect = true;
             statusText.text = "ok";
-            this.server.send("setplayer " + this.localPlayer.name + "|join 0");
+            this.server.send("setplayer " + this.localPlayer.name + "|joinany");
         };
         this.server.onmessage = (event) => {
 
@@ -176,10 +177,9 @@ class GameScene extends Phaser.Scene
 
     dealCards(fromStack, toStacks, dealAmount = 1)
     {
-        console.log("dealing cards to", toStacks);
-        for (let j = 0; j < dealAmount; j++) 
+        for (let j = 0, t = 0; j < dealAmount; j++) 
         {
-            for (let k = 0; k < toStacks.length && !fromStack.isEmpty(); k++) 
+            for (let k = 0; k < toStacks.length && !fromStack.isEmpty(); k++, t += 50) 
             {
                 setTimeout(() => {
                     
@@ -188,8 +188,7 @@ class GameScene extends Phaser.Scene
                         return;
                     toStacks[k].tryToMoveCardOnTop(topCard, true);
 
-                }, k * 100);
-               
+                }, t);
             }
         }
         return fromStack.containingCards.length > 0; // returns true if it still contains any card
@@ -499,16 +498,37 @@ class CardStack extends Phaser.GameObjects.Sprite
 
     areTopCardsSameValue(depth = 4)
     {
-        if (this.containingCards.length < 4)
+        if (this.containingCards.length < depth)
             return false;
 
-        const value = this.getTopCard().cardValue;
+        return this.getSameValueDepthFromTop() === depth;
+        /*const value = this.getTopCard().cardValue;
         for(let k = 1; k < depth; k++)
         {
             if (this.getTopCard(k).cardValue !== value)
                 return false;
         }
-        return true;
+        return true;*/
+    }
+
+    getSameValueDepthFromTop()
+    {
+        const value = this.getTopCard().cardValue;
+        for(let k = 1; !this.isEmpty(); k++)
+        {
+            if (this.getTopCard(k).cardValue !== value)
+                return k;
+        }
+    }
+
+    countCardValues(value)
+    {
+        var i = 0;
+        this.containingCards.forEach((card) => {
+            if (card.cardValue === value)
+                i++;   
+        });
+        return i;
     }
 }
 
@@ -610,8 +630,6 @@ class DynamicCard extends Phaser.GameObjects.Sprite
         this.on("dragend", () => {
 
             const snapStacks = [this.snappedToStack, ...this.snappedToStack.onGetAllowedCardStacks(this)];
-            console.log("snapStacks", snapStacks);
-
             if (!snapStacks || snapStacks.length === 0)
                 return;
 

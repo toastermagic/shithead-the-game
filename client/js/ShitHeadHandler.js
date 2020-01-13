@@ -13,7 +13,7 @@ class ShitHeadHandler extends GameScene
         //const playerNameTextStyle = {padding: 3, fontSize: 18, fixedWidth: 0.5 * this.game.config.width, align: "center"};
         //this.playerNameText = this.add.text(0.25 * this.game.config.width, 0.04 * this.game.config.height, this.localPlayer.name, playerNameTextStyle);
         //this.playerNameText.setDepth(1000000);
-        const turnTextStyle = {padding: 3, fontSize: 16, fixedWidth: 0.5 * this.game.config.width, align: "center"};
+        const turnTextStyle = {padding: 3, fontSize: 20, fixedWidth: 0.5 * this.game.config.width, align: "center"};
         this.turnText = this.add.text(0.25 * this.game.config.width, 0.35 * this.game.config.height, "waiting", turnTextStyle);
         this.turnText.setDepth(1000000);
         const readyButtonStyle = {backgroundColor: "#271", padding: 6, fontSize: 20, fixedWidth: 0.4 * this.game.config.width, align: "center"};
@@ -332,8 +332,41 @@ class ShitHeadHandler extends GameScene
                     return false;
                 }
                 
+                const topCard = throwStack.getTopCard();
+                if (topCard && topCard.cardValue === newCard.value && (throwStack.getSameValueDepthFromTop() + this.localPlayer.countCardValues(newCard.value)))
+                {
+                    console.log("PLAYER CAN BURN!!!");
+                }
+
+                const playerStage = this.getPlayerStage(this.localPlayer);
                 const mayThrow = this.mayCardBeThrown(newCard);
-                const comesFromStack = newCard.snappedToStack;
+              
+                if (playerStage === 0) // if normal inventory move
+                {
+                    return newCard.snappedToStack === this.localPlayer.inventory && mayThrow;
+                }
+                else if (playerStage === 1) // if final stack move
+                {
+                    return newCard.snappedToStack.containingCards.length === 2 && mayThrow;
+                }
+                else if (playerStage === 2) // if final hidden stack move
+                {
+                    if (!mayThrow)
+                    {
+                        if (this.previouslyThrownValueThisRound === null)
+                            newCard.flipCard(true);
+                        setTimeout(() => newCard.flipCard(false), 2000);
+                        this.takeThrowStack();
+                    }
+
+                    this.previouslyThrownValueThisRound = newCard.value;
+                    return mayThrow;
+                }
+                else
+                {
+                    console.log("GAME IS OVER");
+                }
+                /*const comesFromStack = newCard.snappedToStack;
                 const inventoryIsEmpty = this.localPlayer.inventory.containingCards.length === 0;
                 if ((comesFromStack === this.localPlayer.finalStack1 
                     || comesFromStack === this.localPlayer.finalStack2 
@@ -357,21 +390,22 @@ class ShitHeadHandler extends GameScene
 
                 if (!mayThrow)
                     console.log("MAY NOT BE THROWN!");
-                return mayThrow;
+                return mayThrow;*/
             };
             throwStack.onAddingCardToTop = (newCard) => {
 
                 this.previouslyThrownValueThisRound = newCard.cardValue;
                 newCard.flipCard(true);
 
-                if (newCard.snappedToStack.stackName === "inventory")
+                /*if (newCard.snappedToStack.stackName === "inventory")
                 {
-                    if (newCard.snappedToStack.length === 1)
+                    if (newCard.snappedToStack.containingCards.length === 1)
                     {
+                        console.log("INVENTORY IS EMPTY");
                         this.previouslyThrownValueThisRound = null;
                     }
-                }
-                else if (newCard.snappedToStack.stackName === "inventory_final1"
+                }*/
+                /*else if (newCard.snappedToStack.stackName === "inventory_final1"
                     || newCard.snappedToStack.stackName === "inventory_final2"
                     || newCard.snappedToStack.stackName === "inventory_final3")
                 {
@@ -379,20 +413,29 @@ class ShitHeadHandler extends GameScene
                     {
                         this.previouslyThrownValueThisRound = null;
                     }
-                }
+                }*/
             };
             throwStack.onAddedCardToTop = (newCard) => {
 
                 if (newCard.cardValue === 10 || throwStack.areTopCardsSameValue(4) || (newCard.cardType === JOKER && throwStack.areTopCardsSameValue(2))) // if the top 4 cards are the same, or a 10 is thrown, burn it
                 {
                     console.log("BURN!!");
-                    this.getStack("burned").tryMoveAllCards(throwStack.containingCards);
+                    //this.getStack("burned").tryMoveAllCards(throwStack.containingCards);
+                    this.dealCards(throwStack, [this.getStack("burned")], throwStack.containingCards.length);
                     this.previouslyThrownValueThisRound = null;
+                    this.takeMinCards();
                 }  
 
                 if (this.isAtTurn()) // only the player at turn should run the following code
                 {
                     this.readyButton.visible = true;
+                    
+                    if (this.turnStartPlayerStage !== this.getPlayerStage(this.localPlayer))
+                    {
+                        console.log("YOU MAY GO AGAIN");
+                        this.turnStartPlayerStage = this.getPlayerStage(this.localPlayer);
+                        this.previouslyThrownValueThisRound = null;
+                    }
 
                     /*if (this.previouslyThrownValueThisRound !== null)
                     {
@@ -410,6 +453,7 @@ class ShitHeadHandler extends GameScene
                 }
             };
 
+            // the player with the lowest card may start
             this.setTurn(this.getPlayerWithLowestCard().name);
         }
     }
@@ -422,56 +466,85 @@ class ShitHeadHandler extends GameScene
         this.readyButton.visible = false;
     }
 
+    takeMinCards(amount = 3)
+    {
+        const playerInvCards = this.localPlayer.inventory.containingCards.length;
+        if (playerInvCards < amount)
+        {
+            this.server.send("broadcast deal " + (amount - playerInvCards) + " take " + stackToString(this.localPlayer.inventory));
+            this.dealCards(this.getStack("take"), [this.localPlayer.inventory], amount - playerInvCards);
+        }
+    }
+
+    getPlayerStage(player) // normal(0), final(1), hiddenfinal(2) or done(3)
+    {
+        if (!player.inventory.isEmpty())
+            return 0;
+        
+        var finalCount = player.finalStack1.containingCards.length 
+            + player.finalStack2.containingCards.length 
+            + player.finalStack3.containingCards.length;
+
+        if (finalCount > 3)
+            return 1;
+        else if (finalCount > 0)
+            return 2;
+        else 
+            return 3;
+    }
+
     onTurnWillEnd(playerTurnEnd)
     {
         if (this.isAtTurn())
-        {
-            const playerInvCards = this.localPlayer.inventory.containingCards.length;
-            if (playerInvCards < 3)
-            {
-                //console.log("Taking", 3 - playerInvCards, "cards");
-                this.dealCards(getStack("take"), [this.localPlayer.inventory], 3 - playerInvCards);
-                this.server.send("broadcast deal " + (3 - playerInvCards) + " take " + stackToString(this.localPlayer.inventory));
-            }
-        }
+            this.takeMinCards();
     }
 
     onTurnStart(playerAtTurn)
     {
         this.previouslyThrownValueThisRound = null;
-        //debugger;
-        //console.log(playerAtTurn.name, "is at turn!");
+        this.turnStartPlayerStage = this.getPlayerStage(playerAtTurn);
         this.turnText.text = playerAtTurn.name + "'s turn!";
 
         if (this.isAtTurn())
         {
             this.turnText.text = "Your turn!";
+            this.tweens.add({
+                targets: this.turnText,
+                yoyo: true,
+                y: 0.3 * this.game.config.height,
+                scaleX: 1.4,
+                scaleY: 1.4,
+                duration: 400,
+                hold: 200,
+                ease: "Cubic"
+            });
 
-            var canThrow = false;
-            if (!this.localPlayer.inventory.isEmpty())
+            var shouldTryThrow = false;
+            if (this.turnStartPlayerStage === 0)
             {
-                canThrow = !this.localPlayer.inventory.containingCards.every((card) => !this.mayCardBeThrown(card));
+                shouldTryThrow = !this.localPlayer.inventory.containingCards.every((card) => !this.mayCardBeThrown(card));
+                if (!shouldTryThrow)
+                    debugger;
             }
-            else if (this.localPlayer.finalStack1.containingCards.length >= 2 // final cards
-                || this.localPlayer.finalStack2.containingCards.length >= 2
-                || this.localPlayer.finalStack1.containingCards.length >= 2)
+            else if (this.turnStartPlayerStage === 1)
             {
-                canThrow = this.mayCardBeThrown(this.localPlayer.finalStack1.getTopCard())
+                shouldTryThrow = this.mayCardBeThrown(this.localPlayer.finalStack1.getTopCard())
                     || this.mayCardBeThrown(this.localPlayer.finalStack2.getTopCard())
                     || this.mayCardBeThrown(this.localPlayer.finalStack3.getTopCard());
             }
-            else // hidden final cards
+            else if (this.turnStartPlayerStage === 2)
             {
-                canThrow = true;
-                /*this.mayCardBeThrown(this.localPlayer.finalStack1.getTopCard())
-                || this.mayCardBeThrown(this.localPlayer.finalStack2.getTopCard())
-                || this.mayCardBeThrown(this.localPlayer.finalStack3.getTopCard());*/
+                shouldTryThrow = true;
+            }
+            else
+            {
+                console.log("GAME IS OVER");
             }
 
-            if (!canThrow)
+            if (!shouldTryThrow)
             {
                 console.log("Player cant do nothing in his turn! Has to take!");
-                this.takeThrowStack();
+                setTimeout(() =>  this.takeThrowStack(), 2000);
             }
             else
             {
@@ -494,7 +567,7 @@ class ShitHeadHandler extends GameScene
 
         var throwStack = this.getStack("throw");
         var takeStack = this.getStack("take");
-        var cards = throwStack.containingCards.filter((c) => c.cardValue != 7);    // <-- remove all sevens because they are transparent
+        var cards = throwStack.containingCards.filter((c) => c.cardValue !== 7);    // <-- remove all sevens because they are transparent
         var underlayingCard = cards.length === 0 ? null : cards[cards.length - 1];
         var underlayingValue = underlayingCard == null ? 0 : underlayingCard.cardValue;
         var underlayingType = underlayingCard == null ? null : underlayingCard.cardType;
@@ -503,38 +576,47 @@ class ShitHeadHandler extends GameScene
 
         if (this.previouslyThrownValueThisRound !== null) // only allow doubles
         {
+            console.log("YOU ALREADY THREW THIS ROUND!");
             return this.previouslyThrownValueThisRound === newCard.cardValue;
         }
         else if (cardValue === 7 || newCard.cardType === JOKER) // these cards can be thrown all the time
         {
+            console.log("mayCardBeThrown()", "7 or JOKER");
             return true;
         }
         else if (underlayingType === JOKER) // only allow odd cards on jokers
         {
+            console.log("mayCardBeThrown()", "underlaying JOKER");
             return cardValue % 2 === 1;
         }
         else if (underlayingValue === 9)    // only allow card values <= 9 on the 9
         {
+            console.log("mayCardBeThrown()", "underlaying 9");
             return cardValue <= 9;
         }
         else if (cardValue === 2) // these cards can be thrown on all but the joker
         {
+            console.log("mayCardBeThrown()", "2");
             return true;
         }
         else if (cardValue === 9 || cardValue === 10)
         {
+            console.log("mayCardBeThrown()", "9 or 10");
             return underlayingValue !== 14;
         }
         else if (cardValue === 8 || cardValue === 3)
         {
+            console.log("mayCardBeThrown()", "8 or 3");
             return cardValue >= underlayingValue;
         }
         else if (takeStack.containingCards.length === 0 && underlayingCard === 14 && cardValue === 5)
         {
+            console.log("mayCardBeThrown()", "takeStack === 0 and underlaying 14 and 5");
             return true;
         }
         else
         {
+            console.log("mayCardBeThrown()", "end", cardValue, ">", underlayingValue);
             return cardValue > underlayingValue;
         }
     };
