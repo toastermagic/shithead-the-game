@@ -45,7 +45,7 @@ app.get("/", (req, res, next) => {
 app.post("/setName", (req, res, next) => {
 
     const playerName = req.body.name;
-    if (!playerName || !playerName.match(/^[a-z0-9_@&+.,?-]+$/i))
+    if (!playerName || !playerName.match(/^[a-z0-9_@&+.,?-]{1,12}$/i))
         return res.redirect("/?problem=invalid-player-name");
 
     req.session.playerName = playerName;
@@ -61,7 +61,7 @@ app.get("/logout", (req, res, next) => {
 app.get("/game", (req, res, next) => {
     
     const gameName = req.query.gameName || "ShitHead";
-    if (!gameName.match(/^[a-z0-9_]+$/i))
+    if (!gameName.match(/^[a-z0-9_]{1,32}$/i))
         return res.redirect("/?problem=invalid-game-name");    
     if (!req.session.playerName)
         return res.redirect("/?problem=no-player");    
