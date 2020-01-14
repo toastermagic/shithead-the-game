@@ -22,6 +22,23 @@ class ShitHeadHandler extends GameScene
         const turnTextStyle = {padding: 3, fontSize: 20, fixedWidth: 0.5 * this.game.config.width, align: "center", fontFamily: "Wellfleet", color: "#999"};
         this.turnText = this.add.text(0.25 * this.game.config.width, 0.35 * this.game.config.height, "Waiting...", turnTextStyle);
         this.turnText.setDepth(1000000);
+        
+        const gameModeButtonStyle = {backgroundColor: "#721", padding: 6, fontSize: 12, fixedWidth: 0.4 * this.game.config.width, align: "center", fontFamily: "Wellfleet"};
+        this.gameModeButton = this.add.text(0.3 * this.game.config.width, 0.6 * this.game.config.height, "Gamemode: Normal", gameModeButtonStyle);
+        this.gameModeButton.setInteractive();
+        this.gameModeButton.on("pointerdown", () => {
+            
+            if (this.gameModeButton.text === "Gamemode: Normal")
+                this.gameModeButton.text = "Gamemode: NO U";
+            else if (this.gameModeButton.text === "Gamemode: NO U")
+                this.gameModeButton.text = "Gamemode: Ultraburn";
+            else if (this.gameModeButton.text === "Gamemode: Ultraburn")
+                this.gameModeButton.text = "Gamemode: Instafinal";
+            else if (this.gameModeButton.text === "Gamemode: Instafinal")
+                this.gameModeButton.text = "Gamemode: Normal";
+        });
+        this.gameModeButton.visible = false;
+        
         const readyButtonStyle = {backgroundColor: "#271", padding: 6, fontSize: 20, fixedWidth: 0.4 * this.game.config.width, align: "center", fontFamily: "Wellfleet"};
         this.readyButton = this.add.text(0.3 * this.game.config.width, 0.65 * this.game.config.height, "Ready", readyButtonStyle);
         this.readyButton.setInteractive();
@@ -29,6 +46,7 @@ class ShitHeadHandler extends GameScene
         this.readyButton.on("pointerdown", () => {
 
             this.readyButton.visible = false;
+            this.gameModeButton.visible = false;
             this.server.send("gamestate startOfGame");
         });
         this.readyButton.visible = false;
@@ -85,7 +103,10 @@ class ShitHeadHandler extends GameScene
         console.log("onJoin", player.name);
 
         if (this.players.length > 1 && this.isDealer())
+        {
+            this.gameModeButton.visible = true;
             this.readyButton.visible = true;
+        }
 
         this.createStacksForPlayer(player);
     }
@@ -288,12 +309,20 @@ class ShitHeadHandler extends GameScene
                 console.log("im dealer, dealing cards...");
 
                 // creating card strings, shuffling them, then sending to clients
+                const cardCount = 54;
                 var cards = [];
-                for (let i = 0; i < 54; i++) 
+                for (let i = 0; i < cardCount; i++) 
                    cards.push(Math.floor(i / 13) + ":" + (i % 13 + 1));
 
-                for(let j = 0; j < 30; j++)
-                   cards.push("0:4");
+                console.log("gamemode", this.gameModeButton.text);
+                if (this.gameModeButton.text === "Gamemode: Ultraburn")
+                    for(let j = 0; j < 4; j++)
+                        cards.push((j % 4) + ":10");
+                else if (this.gameModeButton.text === "Gamemode: NO U")
+                    for(let j = 0; j < 4; j++)
+                        cards.push((j % 4) + ":7");
+                else if (this.gameModeButton.text === "Gamemode: Instafinal")
+                    cards.splice(this.players.length * 9);
 
                 for (let i = cards.length - 1; i > 0; i--) 
                 {

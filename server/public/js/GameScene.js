@@ -337,7 +337,7 @@ class CardStack extends Phaser.GameObjects.Sprite
         this.stackName = stackName;
         this.containingCards = [];
         this.resetRules();
-        this.setScale((this.scene.game.config.width / this.width) / 5);
+        this.setScale((this.scene.game.config.width / this.width) / 5.5);
         this.setAngle(0);
 
         scene.add.existing(this);
