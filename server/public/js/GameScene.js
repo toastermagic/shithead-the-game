@@ -26,7 +26,7 @@ class GameScene extends Phaser.Scene
         statusText.setFontSize(12);
         statusText.setDepth(10000000);
 
-        this.server = new WebSocket("ws://212.92.67.59:81", "cards");
+        this.server = new WebSocket("ws://localhost:81", "cards");
         var didConnect = false;
         this.server.onopen = () => {
 
@@ -491,24 +491,21 @@ class CardStack extends Phaser.GameObjects.Sprite
         if (this.containingCards.length < depth)
             return false;
 
-        return this.getSameValueDepthFromTop() === depth;
-        /*const value = this.getTopCard().cardValue;
-        for(let k = 1; k < depth; k++)
-        {
-            if (this.getTopCard(k).cardValue !== value)
-                return false;
-        }
-        return true;*/
+        return this.getSameValueDepthFromTop() >= depth;
     }
 
     getSameValueDepthFromTop()
     {
+        if (this.isEmpty())
+            return 0;
+
         const value = this.getTopCard().cardValue;
-        for(let k = 1; !this.isEmpty(); k++)
+        for(let k = 1; k < this.containingCards.length; k++)
         {
             if (this.getTopCard(k).cardValue !== value)
                 return k;
         }
+        return this.containingCards.length;
     }
 
     countCardValues(value)
