@@ -420,7 +420,7 @@ class ShitHeadHandler extends GameScene
             };
             throwStack.onAddedCardToTop = (newCard) => {
 
-                const burn = newCard.cardValue === 10 || throwStack.areTopCardsSameValue(4) || (newCard.cardType === JOKER && throwStack.areTopCardsSameValue(2)); // if the top 4 cards are the same, or a 10 is thrown, burn it
+                const burn = newCard.cardValue === 10 || throwStack.areTopCardsSameValue(4) || (newCard.cardType === JOKER && throwStack.areTopCardsSameType(2)); // if the top 4 cards are the same, or a 10 is thrown, burn it
                 if (burn) 
                 {
                     console.log("BURN!!");
@@ -630,10 +630,10 @@ class ShitHeadHandler extends GameScene
         if (underlayingValue === 1) // the ace has a value of 14, not 1
             underlayingValue = 14;
 
-        const playerStage = this.getPlayerStage(this.localPlayer);  
+        const playerStage = this.getPlayerStage(player);  
         if (playerStage === 0) // if normal inventory move
         {
-            if (card.snappedToStack !== this.localPlayer.inventory)
+            if (card.snappedToStack !== player.inventory)
                 return false;
         }
         else if (playerStage === 1) // if final stack move
@@ -647,7 +647,7 @@ class ShitHeadHandler extends GameScene
                 return false;
         }
 
-        if (throwStack.getTopCard() && throwStack.getTopCard().cardValue === cardValue && (throwStack.getSameValueDepthFromTop() + this.countCardValues(this.localPlayer, card.cardValue)) >= 4) // allow if can complete set
+        if (throwStack.getTopCard() && throwStack.getTopCard().cardValue === card.cardValue && (throwStack.getSameValueDepthFromTop() + this.countCardValues(player, card.cardValue)) >= 4) // allow if can complete set
         {
             return true;
         }

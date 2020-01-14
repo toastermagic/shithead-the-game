@@ -494,6 +494,14 @@ class CardStack extends Phaser.GameObjects.Sprite
         return this.getSameValueDepthFromTop() >= depth;
     }
 
+    areTopCardsSameType(depth = 4)
+    {
+        if (this.containingCards.length < depth)
+        return false;
+
+        return this.getSameTypeDepthFromTop() >= depth;
+    }
+
     getSameValueDepthFromTop()
     {
         if (this.isEmpty())
@@ -503,6 +511,20 @@ class CardStack extends Phaser.GameObjects.Sprite
         for(let k = 1; k < this.containingCards.length; k++)
         {
             if (this.getTopCard(k).cardValue !== value)
+                return k;
+        }
+        return this.containingCards.length;
+    }
+
+    getSameTypeDepthFromTop()
+    {
+        if (this.isEmpty())
+            return 0;
+
+        const type = this.getTopCard().cardType;
+        for(let k = 1; k < this.containingCards.length; k++)
+        {
+            if (this.getTopCard(k).cardType !== type)
                 return k;
         }
         return this.containingCards.length;
