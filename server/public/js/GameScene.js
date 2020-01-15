@@ -343,6 +343,12 @@ class CardStack extends Phaser.GameObjects.Sprite
         this.setAngle(0);
     }*/
 
+    destroy()
+    {
+        this.containingCards.forEach((card) => card.destroy());
+        super.destroy();
+    }
+
     resetRules()
     {
         this.onCardWantsToGoHere = (_newCard) => false;                   // default: a card can never be moved here, will return false for every card
