@@ -14,6 +14,19 @@ server.on("connection", (socket) => {
         return;
     }
 
+    socket.on("close", (code, reason) => {
+
+        var player = players.find((pl) => pl.socket === socket);
+        if (player)
+        {
+            if (player.joinedGame)
+            {
+                console.log("leaving game due to socket close...", player.name);
+                player.joinedGame.letLeave(player);
+            }
+        }
+    });
+
     socket.on("message", (message) => {
 
         var commands = message.split("|");
@@ -57,6 +70,9 @@ server.on("connection", (socket) => {
                     {
                         if (true || socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket.CLOSING)
                         {
+                            if (socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket.CLOSING)
+                                console.log("WAAS CLOSED");
+
                             console.log("player overtook lingering socket", existingPlayer.name);
                             existingPlayer.socket.close();
                             existingPlayer.socket = socket;
@@ -93,11 +109,12 @@ server.on("connection", (socket) => {
                         console.warn("player already in a game, leaving previous game...", player.name);
                         player.joinedGame.letLeave(player);
                     }
-                    if (!game.letJoin(player))
+                    if (game.inGame() || !game.letJoin(player))
                     {
                         console.warn("cannot join, creating new game...");
                         game = new Game("game" + ++anyGameIndex, 4);
                         games.push(game);
+                        game.letJoin(player);
                     }
                     socket.send("setmaster " + game.players[0].name);
                     continue;

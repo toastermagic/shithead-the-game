@@ -20,6 +20,8 @@
 
     </div>
     <script>
+        var gameObject = new {{gameName}}Handler("{{playerName}}");
+
         var config = {
             type: Phaser.AUTO,
             width: Math.min(window.innerWidth, window.innerHeight * (3 / 4)),
@@ -28,11 +30,12 @@
             physics: {
                 default: "arcade"
             },
-            scene: [new {{gameName}}Handler("{{playerName}}")]
+            scene: [gameObject]
         };
 
-        var game = new Phaser.Game(config);
+        new Phaser.Game(config);
 
+        window.onbeforeunload = () => gameObject.server.close();;
     </script>
 </body>
 </html>

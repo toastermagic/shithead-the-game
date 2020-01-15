@@ -52,7 +52,7 @@ class ShitHeadHandler extends GameScene
             this.server.send("gamestate startOfGame");
         });
         this.readyButton.visible = false;
-
+        this.playerWon = null;
         
         this.createNormalStack("take", 0, 0).setAngle(-45);
         var throwStack = this.createNormalStack("throw", 0.5, 0.5);
@@ -164,16 +164,19 @@ class ShitHeadHandler extends GameScene
 
     onLeft(player)     // called when a player leaves
     {
+        console.log("onLeft", player.name);
+
         if (this.gameState === "waiting")
         {
             if (this.players.length < 2)
                 this.readyButton.visible = false;
-
-            player.inventory.destroy();
-            player.finalStack1.destroy();
-            player.finalStack2.destroy();
-            player.finalStack3.destroy();
         }
+
+        player.playerNameText.destroy();
+        player.inventory.destroy();
+        player.finalStack1.destroy();
+        player.finalStack2.destroy();
+        player.finalStack3.destroy();
     }
 
     isDealer()
@@ -461,9 +464,11 @@ class ShitHeadHandler extends GameScene
                 if (playerStage === 3) // if player is out
                 {
                     this.playerAtTurn.playerNameText.setColor("#f0f");
+                    if (!this.playerWon)
+                        this.playerWon = this.playerAtTurn;
                     if (this.players.filter((pl) => this.getPlayerStage(pl) === 3).length >= this.players.length - 1)
                     {
-                        this.turnText.text = "Game over!";
+                        this.turnText.text = this.playerWon.name + " won!";
                         this.turnText.setColor("#f0f");
                         this.readyButton.visible = false;
                         return;
