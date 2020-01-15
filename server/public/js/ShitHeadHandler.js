@@ -35,6 +35,8 @@ class ShitHeadHandler extends GameScene
             else if (this.gameModeButton.text === "Gamemode: Ultraburn")
                 this.gameModeButton.text = "Gamemode: Instafinal";
             else if (this.gameModeButton.text === "Gamemode: Instafinal")
+                this.gameModeButton.text = "Gamemode: Jokerparty";
+            else if (this.gameModeButton.text === "Gamemode: Jokerparty")
                 this.gameModeButton.text = "Gamemode: Normal";
         });
         this.gameModeButton.visible = false;
@@ -309,20 +311,35 @@ class ShitHeadHandler extends GameScene
                 console.log("im dealer, dealing cards...");
 
                 // creating card strings, shuffling them, then sending to clients
-                const cardCount = 54;
                 var cards = [];
-                for (let i = 0; i < cardCount; i++) 
+                for (let i = 0; i < 52; i++) 
                    cards.push(Math.floor(i / 13) + ":" + (i % 13 + 1));
+                cards.push("4:0");
+                cards.push("4:0");
 
                 console.log("gamemode", this.gameModeButton.text);
-                if (this.gameModeButton.text === "Gamemode: Ultraburn")
+                if (this.gameModeButton.text === "Gamemode: Ultraburn") // add 4 extra 10s
+                {
                     for(let j = 0; j < 4; j++)
                         cards.push((j % 4) + ":10");
-                else if (this.gameModeButton.text === "Gamemode: NO U")
+                }
+                else if (this.gameModeButton.text === "Gamemode: NO U") // add an extra 4 7s and 4 aces.
+                {
                     for(let j = 0; j < 4; j++)
+                    {
                         cards.push((j % 4) + ":7");
-                else if (this.gameModeButton.text === "Gamemode: Instafinal")
+                        cards.push((j % 4) + ":1");
+                    }
+                }
+                else if (this.gameModeButton.text === "Gamemode: Instafinal") // start the finale immediately
+                {
                     cards.splice(this.players.length * 9);
+                }
+                else if (this.gameModeButton.text === "Gamemode: Jokerparty") // add 6 extra jokers
+                {
+                    for(let j = 0; j < 60; j++)
+                        cards.push("4:0");
+                }
 
                 for (let i = cards.length - 1; i > 0; i--) 
                 {
@@ -358,7 +375,7 @@ class ShitHeadHandler extends GameScene
             this.readyButton.visible = false;
             this.readyButton.on("pointerdown", () => {
 
-                this.server.send("broadcastall turn " + this.getNextTurnPlayer().name);
+                this.server.send("broadcastall turn " + this.getNextTurnPlayer(this.skipTurns).name);
                 this.readyButton.visible = false;
             });
 
@@ -420,23 +437,38 @@ class ShitHeadHandler extends GameScene
             };
             throwStack.onAddedCardToTop = (newCard) => {
 
-                const burn = newCard.cardValue === 10 || throwStack.areTopCardsSameValue(4) || (newCard.cardType === JOKER && throwStack.areTopCardsSameType(2)); // if the top 4 cards are the same, or a 10 is thrown, burn it
+                const burn = newCard.cardValue === 10 || throwStack.areTopCardsSameValue(4) || (newCard.cardType === JOKER && throwStack.areTopCardsSameValue(2)); // if the top 4 cards are the same, or a 10 is thrown, burn it
                 if (burn) 
                 {
                     console.log("BURN!!");
-                    //this.getStack("burned").tryMoveAllCards(throwStack.containingCards);
                     this.explosion.anims.play("explode");
                     this.dealCards(throwStack, [this.getStack("burned")], throwStack.containingCards.length);
                     this.previouslyThrownValueThisRound = null;
                     this.takeMinCards();
                 }  
+                else if (newCard.cardValue === 8)
+                {
+                    this.skipTurns++;
+                }
+
+                var playerStage = this.getPlayerStage(this.playerAtTurn);
+                if (playerStage === 3) // if player is out
+                {
+                    this.playerAtTurn.playerNameText.setColor("#f0f");
+                    if (this.players.filter((pl) => this.getPlayerStage(pl) === 3).length >= this.players.length - 1)
+                    {
+                        this.turnText.text = "Game over!";
+                        this.turnText.setColor("#f0f");
+                        this.readyButton.visible = false;
+                        return;
+                    }
+                }
 
                 if (this.isAtTurn()) // only the player at turn should run the following code
                 {
-                    if (this.turnStartPlayerStage !== this.getPlayerStage(this.localPlayer))
+                    if (this.turnStartPlayerStage !== playerStage)
                     {
-                        console.log("YOU MAY GO AGAIN");
-                        this.turnStartPlayerStage = this.getPlayerStage(this.localPlayer);
+                        this.turnStartPlayerStage = playerStage;
                         this.previouslyThrownValueThisRound = null;
                     }
 
@@ -444,20 +476,6 @@ class ShitHeadHandler extends GameScene
                     {
                         this.readyButton.visible = true;
                     }
-
-                    /*if (this.previouslyThrownValueThisRound !== null)
-                    {
-                        // if there are duplicate cards left in the inventory, show a button so the player can choose if it doesn't want to throw them, else, nextturn automatically
-                        if (this.localPlayer.inventory.containingCards.every((card) => card.cardValue !== this.previouslyThrownValueThisRound))
-                        {
-                            console.log("cant do anything");
-                            this.server.send("broadcastall turn " + this.getNextTurnPlayer().name);
-                        }
-                        else
-                        {
-                            this.readyButton.visible = true;
-                        }
-                    }*/
                 }
             };
 
@@ -549,6 +567,7 @@ class ShitHeadHandler extends GameScene
         this.turnStartPlayerStage = this.getPlayerStage(playerAtTurn);
         this.turnText.text = playerAtTurn.name + "'s turn!";
         this.turnText.setColor(this.isAtTurn() ? "#0f0" : "#fff");
+        this.skipTurns = 1;
         playerAtTurn.playerNameText.setColor("#0f0");
 
         if (this.isAtTurn())
@@ -570,15 +589,8 @@ class ShitHeadHandler extends GameScene
             }
             else
             {
-                if (this.players.filter((pl) => this.getPlayerStage(pl) === 3).length >= this.players.length - 1)
-                {
-                    this.turnText.text = "Game over!";
-                    this.turnText.setColor("#f0f");
-                    return;
-                }
-
                 // this player is out, go to next player
-                //this.server.send("broadcastall turn " + this.getNextTurnPlayer().name);
+                this.server.send("broadcastall turn " + this.getNextTurnPlayer().name);
                 return;
             }
 
@@ -647,8 +659,11 @@ class ShitHeadHandler extends GameScene
                 return false;
         }
 
-        if (throwStack.getTopCard() && throwStack.getTopCard().cardValue === card.cardValue && (throwStack.getSameValueDepthFromTop() + this.countCardValues(player, card.cardValue)) >= 4) // allow if can complete set
+        if (throwStack.getTopCard() 
+            && throwStack.getTopCard().cardValue === card.cardValue 
+            && (throwStack.getSameValueDepthFromTop() + this.countCardValues(player, card.cardValue)) >= (card.cardType === JOKER ? 2 : 4)) // allow if can complete set
         {
+            console.log("mayCardBeThrown()", "2 JOKERS or 4 OTHERS");
             return true;
         }
         else if (this.previouslyThrownValueThisRound !== null) // only allow doubles

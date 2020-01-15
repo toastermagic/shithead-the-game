@@ -26,7 +26,7 @@ class GameScene extends Phaser.Scene
         statusText.setFontSize(12);
         statusText.setDepth(10000000);
 
-        this.server = new WebSocket("ws://shithead.codestix.nl:81", "cards");
+        this.server = new WebSocket("ws://192.168.0.200:81", "cards");
         var didConnect = false;
         this.server.onopen = () => {
 
@@ -165,20 +165,14 @@ class GameScene extends Phaser.Scene
 
     dealCards(fromStack, toStacks, dealAmount = 1)
     {
-        for (let j = 0, t = 0; j < dealAmount; j++) 
+        for (let j = 0; j < dealAmount; j++) 
         {
-            for (let k = 0; k < toStacks.length && !fromStack.isEmpty(); k++, t += 50) 
+            for (let k = 0; k < toStacks.length && !fromStack.isEmpty(); k++) 
             {
                 var topCard = fromStack.getTopCard();
                 if (topCard === null)
                     return;
                 toStacks[k].tryToMoveCardOnTop(topCard, true);
-
-                setTimeout(() => {
-                    
-                   
-
-                }, t);
             }
         }
         return fromStack.containingCards.length > 0; // returns true if it still contains any card
@@ -312,7 +306,7 @@ const JOKER = 4;
 
 function getCardSpriteId(cardType, cardValue, cardVisible) 
 {
-    const BACK_SPRITE_ID = 27; // 13: red, 27: blue
+    const BACK_SPRITE_ID = 13; // 13: red, 27: blue
     if (!cardVisible)
         return BACK_SPRITE_ID;
     else if (cardType == 0)
