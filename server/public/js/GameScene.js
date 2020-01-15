@@ -541,14 +541,13 @@ class CardInventory extends CardStack
     {
         super(scene, x, y, stackName, stackOwner);
 
-        this.maxInventoryWidth = this.scene.game.config.width * 0.8;
         this.setAngle(0);
         this.visible = false;
     }
 
     updateCardPositions()
     {
-        const xCardSplit = this.maxInventoryWidth / this.containingCards.length;
+        const xCardSplit = this.scene.game.config.width * 0.8 / this.containingCards.length;
         var xOffset = -(this.containingCards.length - 1) / 2 * xCardSplit;
         var fan = -(this.containingCards.length - 1) / 2;
         this.containingCards.forEach((card, index) => {
@@ -558,29 +557,46 @@ class CardInventory extends CardStack
         });
     }
 
+    sortCardsPerValue()
+    {
+        this.containingCards.sort((a, b) => (a.cardValue * 10 + a.cardType) - (b.cardValue * 10 + b.cardType));
+        this.containingCards.forEach((card) => card.setDepth(currentCardDepth++))
+        this.updateCardPositions();
+    }
+
     addCard(card)
     {
         super.addCard(card);
 
+        /*if (this.sortTimeout !== null)
+            clearTimeout(this.sortTimeout);
+
+        this.sortTimeout = setTimeout(() => {
+          
+            this.sortCardsPerValue();
+            this.sortTimeout = null;
+        }, 500);*/
+
         // inventory card should always overlay
-        this.containingCards.forEach((card) =>  card.setDepth(currentCardDepth++))
+        this.containingCards.forEach((card) => card.setDepth(currentCardDepth++));
     }
 }
 
-class CardInventoryVertical extends CardStack
+class CardInventoryVertical extends CardInventory
 {
     constructor(scene, x, y, stackName, stackOwner = null)
     {
         super(scene, x, y, stackName, stackOwner);
 
-        this.maxInventoryHeight = this.scene.game.config.height * 0.25;
         this.setAngle(90);
         this.visible = false;
+
+        this.sortTimeout = null;
     }
 
     updateCardPositions()
     {
-        const yCardSplit = this.maxInventoryHeight / this.containingCards.length;
+        const yCardSplit = this.scene.game.config.height * 0.25 / this.containingCards.length;
         var yOffset = -(this.containingCards.length - 1) / 2 * yCardSplit;
         var fan = -(this.containingCards.length - 1) / 2;
         this.containingCards.forEach((card, index) => {
@@ -590,13 +606,24 @@ class CardInventoryVertical extends CardStack
         });
     }
 
-    addCard(card)
+    /*addCard(card)
     {
         super.addCard(card);
 
+        if (this.sortTimeout !== null)
+            clearTimeout(this.sortTimeout);
+
+        this.sortTimeout = setTimeout(() => {
+            this.containingCards.sort((a, b) => (a.cardValue * 5 + a.cardType) - (b.cardValue * 5 + b.cardType));
+            this.containingCards.forEach((card) =>  card.setDepth(currentCardDepth++))
+            this.updateCardPositions();
+            this.sortTimeout = null;
+            console.log("sorted");
+        }, 500);
+      
         // inventory card should always overlay
         this.containingCards.forEach((card) =>  card.setDepth(currentCardDepth++))
-    }
+    }*/
 }
 
 var currentCardIndex = 1;

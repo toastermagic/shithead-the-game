@@ -556,9 +556,11 @@ class ShitHeadHandler extends GameScene
     onTurnWillEnd(playerTurnEnd)
     {
         playerTurnEnd.playerNameText.setColor("#fff");
-
+        
         if (this.isAtTurn())
             this.takeMinCards();
+
+        setTimeout(() => playerTurnEnd.inventory.sortCardsPerValue(), 750);
     }
 
     onTurnStart(playerAtTurn)
