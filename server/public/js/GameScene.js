@@ -26,7 +26,7 @@ class GameScene extends Phaser.Scene
         statusText.setFontSize(12);
         statusText.setDepth(10000000);
 
-        this.server = new WebSocket("ws://192.168.0.200:81", "cards");
+        this.server = new WebSocket("ws://shithead.codestix.nl:81", "cards");
         var didConnect = false;
         this.server.onopen = () => {
 
