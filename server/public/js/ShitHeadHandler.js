@@ -348,7 +348,15 @@ class ShitHeadHandler extends GameScene
                 }
                 else if (this.gameModeButton.text === "Gamemode: Trashmode") // add 4 extra 10s
                 {
-                    cards = cards.filter((card) => card.cardValue < 10 && card.cardValue > 2);
+                    cards = [];
+                    for (let i = 0; i < 52; i++) 
+                    {
+                        var value = (i % 13 + 1), type = Math.floor(i / 13);
+
+                        if (value > 2 && value < 10)
+                            cards.push(type + ":" + value);
+                    }
+
                     for(let j = 0; j < 4; j++)
                         cards.push((j % 4) + ":3");
                 }
