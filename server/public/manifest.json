@@ -1,18 +1,17 @@
 {
 	"short_name": "Shithead",
-	"name": "Shithead: The Game",
+    "name": "Shithead: The Game",
+    "display": "standalone",
 	"icons": [
 		{
 			"src": "/img/icon-192.png",
 			"type": "image/png",
 			"sizes": "192x192"
-		},
-		{
+        },
+        {
 			"src": "/img/icon-512.png",
 			"type": "image/png",
 			"sizes": "512x512"
 		}
-    ],
-    "display": "standalone",
-	"theme_color": "#BB33D6"
+    ]
 }
