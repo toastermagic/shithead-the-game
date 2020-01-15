@@ -10,7 +10,8 @@ class ShitHeadHandler extends GameScene
     preload() 
     {
         //this.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
-        this.load.spritesheet("cards", "/img/cards.png", { frameWidth: 72, frameHeight: 96 });
+        //this.load.spritesheet("cards", "/img/cards.png", { frameWidth: 72, frameHeight: 96 });
+        this.load.spritesheet("cards", "/img/cards2.png", { frameWidth: 150, frameHeight: 200 });
         this.load.spritesheet("explosion", "/img/explosion.png", { frameWidth: 64, frameHeight: 64 });
         this.load.image("cardstack", "/img/cardstack.png");
     }
@@ -323,7 +324,7 @@ class ShitHeadHandler extends GameScene
                 console.log("gamemode", this.gameModeButton.text);
                 if (this.gameModeButton.text === "Gamemode: One 10") // add 4 extra 10s
                 {
-                    cards = cards.filter((card) => card.endsWith(":10"));
+                    cards = cards.filter((card) => !card.endsWith(":10"));
                     cards.push("0:10");
                 }
                 else if (this.gameModeButton.text === "Gamemode: NO U") // add an extra 4 7s and 4 aces.

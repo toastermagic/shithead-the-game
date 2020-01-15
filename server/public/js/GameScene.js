@@ -26,7 +26,7 @@ class GameScene extends Phaser.Scene
         statusText.setFontSize(12);
         statusText.setDepth(10000000);
 
-        this.server = new WebSocket("ws://shithead.codestix.nl:81", "cards");
+        this.server = new WebSocket("ws://shithead.codestix.nl:81", "cards"); //shithead.codestix.nl
         var didConnect = false;
         this.server.onopen = () => {
 
@@ -306,7 +306,7 @@ const JOKER = 4;
 
 function getCardSpriteId(cardType, cardValue, cardVisible) 
 {
-    const BACK_SPRITE_ID = 13; // 13: red, 27: blue
+    const BACK_SPRITE_ID = 27; // 13: red, 27: blue
     if (!cardVisible)
         return BACK_SPRITE_ID;
     else if (cardType == 0)
