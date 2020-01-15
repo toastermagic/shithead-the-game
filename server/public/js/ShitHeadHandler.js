@@ -388,8 +388,13 @@ class ShitHeadHandler extends GameScene
             this.players.forEach((player) => {
 
                 player.inventory.onGetAllowedCardStacks = () => [this.getStack("throw")];
+                player.inventory.onAddingCardToTop = (newCard) => {
+
+                    newCard.snapToEase = this.gameState === "inGame" ? "Bounce" :"Back";
+                };
                 player.inventory.onAddedCardToTop = (newCard) => {
 
+                    newCard.snapToEase = "Back";
                     newCard.flipCard(player === this.localPlayer);
                 };
                 player.finalStack1.onGetAllowedCardStacks = () => [this.getStack("throw")];
@@ -432,6 +437,7 @@ class ShitHeadHandler extends GameScene
             };
             throwStack.onAddingCardToTop = (newCard) => {
 
+                newCard.snapToEase = "Cubic";
                 this.previouslyThrownValueThisRound = newCard.cardValue;
                 newCard.flipCard(true);
             };

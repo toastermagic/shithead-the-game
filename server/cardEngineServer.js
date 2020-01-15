@@ -88,12 +88,6 @@ server.on("connection", (socket) => {
                         socket.close(1011, "game or player doesn't exist");
                         break;
                     }
-                    if (game.inGame())
-                    {
-                        console.warn("game already started, creating new game...");
-                        game = new Game("game" + ++anyGameIndex, 4);
-                        games.push(game);
-                    }
                     if (player.joinedGame !== null)
                     {
                         console.warn("player already in a game, leaving previous game...", player.name);
@@ -101,9 +95,9 @@ server.on("connection", (socket) => {
                     }
                     if (!game.letJoin(player))
                     {
-                        console.warn(player.name, "cannot join", game.name);
-                        socket.close(1011, "cannot join room " + game.name);
-                        break;
+                        console.warn("cannot join, creating new game...");
+                        game = new Game("game" + ++anyGameIndex, 4);
+                        games.push(game);
                     }
                     socket.send("setmaster " + game.players[0].name);
                     continue;
