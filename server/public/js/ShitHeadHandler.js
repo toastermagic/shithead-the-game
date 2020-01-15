@@ -37,7 +37,9 @@ class ShitHeadHandler extends GameScene
                 this.gameModeButton.text = "Gamemode: Instafinal";
             else if (this.gameModeButton.text === "Gamemode: Instafinal")
                 this.gameModeButton.text = "Gamemode: Jokerparty";
-            else if (this.gameModeButton.text === "Gamemode: Jokerparty")
+            else if (this.gameModeButton.text === "Gamemode: Jokerparty") 
+                this.gameModeButton.text = "Gamemode: Trashmode";
+            else if (this.gameModeButton.text === "Gamemode: Trashmode")
                 this.gameModeButton.text = "Gamemode: Normal";
         });
         this.gameModeButton.visible = false;
@@ -343,6 +345,12 @@ class ShitHeadHandler extends GameScene
                 {
                     for(let j = 0; j < 12; j++)
                         cards.push("4:0");
+                }
+                else if (this.gameModeButton.text === "Gamemode: Trashmode") // add 4 extra 10s
+                {
+                    cards = cards.filter((card) => card.cardValue < 10 && card.cardValue > 2);
+                    for(let j = 0; j < 4; j++)
+                        cards.push((j % 4) + ":3");
                 }
 
                 for (let i = cards.length - 1; i > 0; i--) 
