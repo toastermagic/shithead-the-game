@@ -31,8 +31,8 @@ class ShitHeadHandler extends GameScene
             if (this.gameModeButton.text === "Gamemode: Normal")
                 this.gameModeButton.text = "Gamemode: NO U";
             else if (this.gameModeButton.text === "Gamemode: NO U")
-                this.gameModeButton.text = "Gamemode: Ultraburn";
-            else if (this.gameModeButton.text === "Gamemode: Ultraburn")
+                this.gameModeButton.text = "Gamemode: One 10";
+            else if (this.gameModeButton.text === "Gamemode: One 10")
                 this.gameModeButton.text = "Gamemode: Instafinal";
             else if (this.gameModeButton.text === "Gamemode: Instafinal")
                 this.gameModeButton.text = "Gamemode: Jokerparty";
@@ -321,10 +321,10 @@ class ShitHeadHandler extends GameScene
                 cards.push("4:0");
 
                 console.log("gamemode", this.gameModeButton.text);
-                if (this.gameModeButton.text === "Gamemode: Ultraburn") // add 4 extra 10s
+                if (this.gameModeButton.text === "Gamemode: One 10") // add 4 extra 10s
                 {
-                    for(let j = 0; j < 4; j++)
-                        cards.push((j % 4) + ":10");
+                    cards = cards.filter((card) => card.endsWith(":10"));
+                    cards.push("0:10");
                 }
                 else if (this.gameModeButton.text === "Gamemode: NO U") // add an extra 4 7s and 4 aces.
                 {
@@ -340,7 +340,7 @@ class ShitHeadHandler extends GameScene
                 }
                 else if (this.gameModeButton.text === "Gamemode: Jokerparty") // add 6 extra jokers
                 {
-                    for(let j = 0; j < 60; j++)
+                    for(let j = 0; j < 12; j++)
                         cards.push("4:0");
                 }
 
