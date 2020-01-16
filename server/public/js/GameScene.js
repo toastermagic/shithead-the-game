@@ -27,7 +27,7 @@ class GameScene extends Phaser.Scene
         statusText.setFontSize(12);
         statusText.setDepth(10000000);
 
-        this.server = new WebSocket("ws://shithead.codestix.nl:81", "cards"); //shithead.codestix.nl
+        this.server = new WebSocket("ws://localhost:81", "cards"); //shithead.codestix.nl
         var didConnect = false;
         this.server.onopen = () => {
 
@@ -78,12 +78,14 @@ class GameScene extends Phaser.Scene
                         continue;
 
                     case "playerleft":
+                        console.log("playerleft args", args);
                         var playerObject = this.players.find((pl) => pl.name === args[1]);
                         if (playerObject === undefined)
                         {
                             console.error("Player left, but the player could not be found locally.");
                             continue;
                         }
+                        this.onLeaving(playerObject);
                         this.players.splice(this.players.indexOf(playerObject), 1);
                         if (this.masterPlayerName === playerObject.name)
                         {
@@ -212,7 +214,10 @@ class GameScene extends Phaser.Scene
     onJoin(player)
     { }
 
-    onLeft(player)
+    onLeaving(player) // called before the player is removed from the players array
+    { }
+
+    onLeft(player)  // called after the player is removed from the players array
     { }
 
     createCard(onDeck, cardType, cardValue, cardVisible)

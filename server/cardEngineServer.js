@@ -50,6 +50,7 @@ server.on("connection", (socket) => {
                     }
                     player.joinedGame.setGameState(args[1]);
                     continue;
+
                 case "gamestatevote":
                     if (!player || !player.joinedGame)
                     {
@@ -57,33 +58,21 @@ server.on("connection", (socket) => {
                         continue;
                     }
                     player.joinedGame.voteSetGameState(args[1]);
+                    continue;
 
                 case "setplayer":
                     if (player)
                     {
-                        console.warn("player called setplayer twice, keeping socket, setting name", player.name);
                         player.name = args[1];
                         continue;
                     }
                     var existingPlayer = players.find((pl) => pl.name == args[1]);
                     if (existingPlayer)
                     {
-                        if (true || socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket.CLOSING)
-                        {
-                            if (socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket.CLOSING)
-                                console.log("WAAS CLOSED");
-
-                            console.log("player overtook lingering socket", existingPlayer.name);
-                            existingPlayer.socket.close();
-                            existingPlayer.socket = socket;
-                            continue;
-                        }
-                        else
-                        {
-                            console.warn("player tried to take over socket but failed!", existingPlayer.name, socket.readyState);
-                            socket.close(1008, "cannot take over socket that is not closed yet!");
-                            return;
-                        }
+                        console.log("player overtook lingering socket", existingPlayer.name);
+                        existingPlayer.socket.close();
+                        existingPlayer.socket = socket;
+                        continue;
                     }    
                     else
                     {
