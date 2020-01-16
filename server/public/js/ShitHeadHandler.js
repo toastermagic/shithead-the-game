@@ -22,7 +22,7 @@ class ShitHeadHandler extends GameScene
         
         const turnTextStyle = {padding: 3, fontSize: 20, fixedWidth: 0.5 * this.game.config.width, align: "center", fontFamily: "Wellfleet", color: "#999"};
         this.turnText = this.add.text(0.25 * this.game.config.width, 0.35 * this.game.config.height, "Waiting...", turnTextStyle);
-        this.turnText.setDepth(1000000);
+        this.turnText.setDepth(100000000);
         
         const gameModeButtonStyle = {backgroundColor: "#721", padding: 6, fontSize: 12, fixedWidth: 0.4 * this.game.config.width, align: "center", fontFamily: "Wellfleet"};
         this.gameModeButton = this.add.text(0.3 * this.game.config.width, 0.6 * this.game.config.height, "Gamemode: Normal", gameModeButtonStyle);
@@ -43,6 +43,7 @@ class ShitHeadHandler extends GameScene
                 this.gameModeButton.text = "Gamemode: Normal";
         });
         this.gameModeButton.visible = false;
+        this.gameModeButton.setDepth(100000000);
         
         const readyButtonStyle = {backgroundColor: "#271", padding: 6, fontSize: 20, fixedWidth: 0.4 * this.game.config.width, align: "center", fontFamily: "Wellfleet"};
         this.readyButton = this.add.text(0.3 * this.game.config.width, 0.65 * this.game.config.height, "Ready", readyButtonStyle);
@@ -55,21 +56,24 @@ class ShitHeadHandler extends GameScene
             this.server.send("gamestate startOfGame");
         });
         this.readyButton.visible = false;
-        this.playerWon = null;
-        
-        this.createNormalStack("take", 0, 0).setAngle(-45);
-        var throwStack = this.createNormalStack("throw", 0.5, 0.5);
+        this.readyButton.setDepth(100000000);
 
+        
+        var takeStack = this.createNormalStack("take", 0, 0).setAngle(-45);
+        takeStack.cardAmountText = this.add.text(5, 0, "", {fontSize: 20, fontFamily: "Pacifico"});
+        takeStack.cardAmountText.setDepth(100000000);
+
+        var throwStack = this.createNormalStack("throw", 0.5, 0.5);
         this.anims.create({
             key: "explode",
             frames: this.anims.generateFrameNumbers("explosion"),
             frameRate: 60
         })
-
         this.explosion = this.add.sprite(throwStack.x, throwStack.y, "explosion");
         this.explosion.setScale((this.game.config.width / this.explosion.width) / 2);
         this.explosion.setFrame(24);
-
+        
+        this.playerWon = null;
         this.createStacksForPlayer(this.localPlayer);
     }
 

@@ -5,7 +5,8 @@ function stackToString(stack)
 
 class GameScene extends Phaser.Scene 
 {
-    constructor(localPlayerName) {
+    constructor(localPlayerName) 
+    {
         super({key: "GameScene"});
         console.log("YOUR NAME", localPlayerName);
         this.localPlayer = {
@@ -20,13 +21,13 @@ class GameScene extends Phaser.Scene
         this.gameState = "waiting";
     }
 
-    create() {
-        
+    create() 
+    {
         var statusText = this.add.text(0, 10, "Connecting...", {fixedWidth: this.game.config.width, align: "center", fontFamily: "Wellfleet", color: "#f80"});
         statusText.setFontSize(12);
         statusText.setDepth(10000000);
 
-        this.server = new WebSocket("ws://shithead.codestix.nl:81", "cards"); //shithead.codestix.nl
+        this.server = new WebSocket("ws://localhost:81", "cards"); //shithead.codestix.nl
         var didConnect = false;
         this.server.onopen = () => {
 
@@ -77,8 +78,18 @@ class GameScene extends Phaser.Scene
                         continue;
 
                     case "playerleft":
-                        var playerObject = this.players.splice(this.players.indexOf(args[1]), 1)[0];
-                        console.log("playerleft", playerObject);
+                        var playerObject = this.players.find((pl) => pl.name === args[1]);
+                        if (playerObject === undefined)
+                        {
+                            console.error("Player left, but the player could not be found locally.");
+                            continue;
+                        }
+                        this.players.splice(this.players.indexOf(playerObject), 1);
+                        if (this.masterPlayerName === playerObject.name)
+                        {
+                            this.masterPlayerName = this.players[0].name;
+                            console.log("master left, setting new master", this.masterPlayerName);
+                        }
                         this.onLeft(playerObject);
                         continue;
 
@@ -333,6 +344,7 @@ class CardStack extends Phaser.GameObjects.Sprite
         this.resetRules();
         this.setScale((this.scene.game.config.width / this.width) / 5.5);
         this.setAngle(0);
+        this.cardAmountText = null;
 
         scene.add.existing(this);
     }
@@ -371,6 +383,12 @@ class CardStack extends Phaser.GameObjects.Sprite
 
         this.containingCards.push(card);
         this.updateCardPositions();
+        
+        if (this.cardAmountText !== null)
+        {
+            this.cardAmountText.text = this.containingCards.length;
+            this.cardAmountText.setColor(this.containingCards.length === 0 ? "#e44" : "#fff");
+        }
     }
 
     removeCard(card) // ONLY THE CARD CLASS SHOULD CALL THIS
@@ -382,7 +400,12 @@ class CardStack extends Phaser.GameObjects.Sprite
         }
 
         this.containingCards.splice(this.containingCards.indexOf(card), 1);
-        //this.updateCardPositions();
+        
+        if (this.cardAmountText !== null)
+        {
+            this.cardAmountText.text = this.containingCards.length;
+            this.cardAmountText.setColor(this.containingCards.length === 0 ? "#e44" : "#fff");
+        }
     }
 
     updateCardPositions()
