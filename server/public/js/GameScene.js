@@ -21,13 +21,18 @@ class GameScene extends Phaser.Scene
         this.gameState = "waiting";
     }
 
+    preload()
+    {
+        this.load.image("cardstack", "/img/cardstack.png");
+    }
+
     create() 
     {
-        var statusText = this.add.text(0, 10, "Connecting...", {fixedWidth: this.game.config.width, align: "center", fontFamily: "Wellfleet", color: "#f80"});
+        var statusText = this.add.text(0, 10, "Connecting...", {fixedWidth: config.width, align: "center", fontFamily: "Wellfleet", color: "#f80"});
         statusText.setFontSize(12);
         statusText.setDepth(10000000);
 
-        this.server = new WebSocket("ws://shithead.codestix.nl:81", "cards"); //shithead.codestix.nl
+        this.server = new WebSocket("ws://192.168.0.200:81", "cards"); //shithead.codestix.nl
         var didConnect = false;
         this.server.onopen = () => {
 
@@ -250,8 +255,8 @@ class GameScene extends Phaser.Scene
             return null;
         }
 
-        var maxWidth = this.game.config.width;
-        var maxHeigth = this.game.config.height;
+        var maxWidth = config.width;
+        var maxHeigth = config.height;
         var inventory = null;
         if (stackType === "stack")
             inventory = new CardStack(this, parseFloat(xPercent) * maxWidth, parseFloat(yPercent) * maxHeigth, stackName, stackOwner);
@@ -299,18 +304,18 @@ class GameScene extends Phaser.Scene
     }
 }
 
-class Player
+/*class Player
 {
     constructor(scene, name)
     {
         this.name = name;
 
-        var finalStackHeight = this.game.config.height - 200;
-        this.finalPlayerStack1 = new CardStack(scene, scene.game.config.width * (1 / 4), finalStackHeight, `player_${name}_final1`);
-        this.finalPlayerStack2 = new CardStack(scene, scene.game.config.width * (2 / 4), finalStackHeight, `player_${name}_final2`);
-        this.finalPlayerStack3 = new CardStack(scene, scene.game.config.width * (3 / 4), finalStackHeight, `player_${name}_final3`);
+        var finalStackHeight = config.height - 200;
+        this.finalPlayerStack1 = new CardStack(scene, config.width * (1 / 4), finalStackHeight, `player_${name}_final1`);
+        this.finalPlayerStack2 = new CardStack(scene, config.width * (2 / 4), finalStackHeight, `player_${name}_final2`);
+        this.finalPlayerStack3 = new CardStack(scene, config.width * (3 / 4), finalStackHeight, `player_${name}_final3`);
     }
-}
+}*/
 
 var currentCardDepth = 1;
 
@@ -320,7 +325,7 @@ const SPADES = 2;
 const DIAMONDS = 3;
 const JOKER = 4;
 
-function getCardSpriteId(cardType, cardValue, cardVisible) 
+var cardTypeValueToSpriteFrame = function (cardType, cardValue, cardVisible) 
 {
     const BACK_SPRITE_ID = 27; // 13: red, 27: blue
     if (!cardVisible)
@@ -347,7 +352,7 @@ class CardStack extends Phaser.GameObjects.Sprite
         this.stackName = stackName;
         this.containingCards = [];
         this.resetRules();
-        this.setScale((this.scene.game.config.width / this.width) / 5.5);
+        this.setScale((config.width / this.width) / 5.5);
         this.setAngle(0);
         this.cardAmountText = null;
 
@@ -581,7 +586,7 @@ class CardInventory extends CardStack
 
     updateCardPositions()
     {
-        const xCardSplit = this.scene.game.config.width * 0.8 / this.containingCards.length;
+        const xCardSplit = config.width * 0.8 / this.containingCards.length;
         var xOffset = -(this.containingCards.length - 1) / 2 * xCardSplit;
         var fan = -(this.containingCards.length - 1) / 2;
         this.containingCards.forEach((card, index) => {
@@ -630,7 +635,7 @@ class CardInventoryVertical extends CardInventory
 
     updateCardPositions()
     {
-        const yCardSplit = this.scene.game.config.height * 0.25 / this.containingCards.length;
+        const yCardSplit = config.height * 0.25 / this.containingCards.length;
         var yOffset = -(this.containingCards.length - 1) / 2 * yCardSplit;
         var fan = -(this.containingCards.length - 1) / 2;
         this.containingCards.forEach((card, index) => {
@@ -639,25 +644,6 @@ class CardInventoryVertical extends CardInventory
             //card.flipCard(true);
         });
     }
-
-    /*addCard(card)
-    {
-        super.addCard(card);
-
-        if (this.sortTimeout !== null)
-            clearTimeout(this.sortTimeout);
-
-        this.sortTimeout = setTimeout(() => {
-            this.containingCards.sort((a, b) => (a.cardValue * 5 + a.cardType) - (b.cardValue * 5 + b.cardType));
-            this.containingCards.forEach((card) =>  card.setDepth(currentCardDepth++))
-            this.updateCardPositions();
-            this.sortTimeout = null;
-            console.log("sorted");
-        }, 500);
-      
-        // inventory card should always overlay
-        this.containingCards.forEach((card) =>  card.setDepth(currentCardDepth++))
-    }*/
 }
 
 var currentCardIndex = 1;
@@ -670,7 +656,7 @@ class DynamicCard extends Phaser.GameObjects.Sprite
     //new DynamicCard(this, deckStack, Math.floor(cardIndices[j] / 13), cardIndices[j] % 13 + 1, false);
     constructor(scene, stack, cardType, cardValue, cardVisible = false, draggable = true) 
     {
-        super(scene, stack.x, stack.y, "cards", getCardSpriteId(cardType, cardValue, cardVisible)); 
+        super(scene, stack.x, stack.y, "cards", cardTypeValueToSpriteFrame(cardType, cardValue, cardVisible)); 
         this.cardType = cardType;
         this.cardValue = cardValue;
         this.cardIndex = currentCardIndex++;
@@ -678,7 +664,7 @@ class DynamicCard extends Phaser.GameObjects.Sprite
         this.snapToEase = "Cubic";
 
         scene.add.existing(this);
-        this.setScale((this.scene.game.config.width / this.width) / 4.75);
+        this.setScale((config.width / this.width) / 4.75);
         this.setInteractive();
         this.setDepth(currentCardDepth++);
         
@@ -746,7 +732,7 @@ class DynamicCard extends Phaser.GameObjects.Sprite
         const FLIP_TEXTURE_FLIP_TIMEOUT = 125;
         this.flipTweenTimeoutHandle = setTimeout(() => {
 
-            this.setFrame(getCardSpriteId(this.cardType, this.cardValue, this.cardVisible));
+            this.setFrame(cardTypeValueToSpriteFrame(this.cardType, this.cardValue, this.cardVisible));
 
         }, FLIP_TIME / 2 - FLIP_TEXTURE_FLIP_TIMEOUT);
 
