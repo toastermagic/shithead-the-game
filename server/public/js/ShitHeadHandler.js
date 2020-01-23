@@ -9,11 +9,9 @@ class ShitHeadHandler extends GameScene
     
     preload() 
     {
-        //this.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
-        //this.load.spritesheet("cards", "/img/cards.png", { frameWidth: 72, frameHeight: 96 });
+        super.preload();
         this.load.spritesheet("cards", "/img/cards2.png", { frameWidth: 150, frameHeight: 200 });
         this.load.spritesheet("explosion", "/img/explosion.png", { frameWidth: 64, frameHeight: 64 });
-        this.load.image("cardstack", "/img/cardstack.png");
     }
 
     create() 
@@ -79,13 +77,10 @@ class ShitHeadHandler extends GameScene
 
     setTurn(playerName)
     {
-        //if (!this.playerAtTurn || playerName !== this.playerAtTurn.name)
-        //{
         if (this.playerAtTurn)
             this.onTurnWillEnd(this.playerAtTurn);
         this.playerAtTurn = this.getPlayerWithName(playerName);
         this.onTurnStart(this.playerAtTurn);
-        //}
     }
 
     getNextTurnPlayer(turnsFurther = 1)
