@@ -319,8 +319,9 @@ class ShitHeadHandler extends GameScene
                 var cards = [];
                 for (let i = 0; i < 52; i++) 
                    cards.push(Math.floor(i / 13) + ":" + (i % 13 + 1));
-                cards.push("4:0");
-                cards.push("4:0");
+
+                // cards.push("4:0");
+                // cards.push("4:0");
 
                 console.log("gamemode", this.gameModeButton.text);
                 if (this.gameModeButton.text === "Gamemode: One 10") // add 4 extra 10s
