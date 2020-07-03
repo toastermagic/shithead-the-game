@@ -1,9 +1,11 @@
 const WebSocket = require("ws");
 const Game = require("./Game");
+const Storage = require("./Storage");
 
 var players = [];
 var games = [new Game("game0", 4)];
 var anyGameIndex = 0;
+const Scores = new Storage();
 
 const server = new WebSocket.Server({port: 8081});
 server.on("connection", (socket) => {
@@ -42,6 +44,10 @@ server.on("connection", (socket) => {
 
             switch(args[0]) 
             {
+                case "chat":
+                    console.log(args[1], args[2]);
+                    continue;
+
                 case "gamestate":
                     if (!player || !player.joinedGame)
                     {
@@ -164,6 +170,21 @@ server.on("connection", (socket) => {
                         if (includeSender || player.joinedGame.players[j] !== player)
                             player.joinedGame.players[j].socket.send(args.slice(1).join(" "));
                     }
+                    continue;
+
+                case "winner":
+                    args.splice(0, 1);
+                    Scores.playerWin(args[0]);
+                    const newScores = Scores.getScores(args);
+                    let message = 'newScores';
+                    Object.keys(newScores).forEach((playerName) => {
+                        message+=` ${playerName} ${newScores[playerName].wins}`
+                    });
+                    for(let j = 0; j < player.joinedGame.players.length; j++)
+                    {
+                        player.joinedGame.players[j].socket.send(message);
+                    }
+
                     continue;
 
                 default:
