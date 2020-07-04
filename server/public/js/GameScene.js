@@ -28,7 +28,7 @@ class GameScene extends Phaser.Scene {
         var statusText = this.add.text(0, 10, "Connecting...", {
             fixedWidth: config.width,
             align: "center",
-            fontFamily: "Wellfleet",
+            fontFamily: "Roboto",
             color: "#f80"
         });
         statusText.setFontSize(12);

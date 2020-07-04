@@ -26,7 +26,7 @@ class ShitHeadHandler extends GameScene {
             fontSize: 20,
             fixedWidth: 0.5 * this.game.config.width,
             align: "center",
-            fontFamily: "Wellfleet",
+            fontFamily: "Roboto",
             color: "#999"
         };
         this.turnText = this.add.text(0.25 * this.game.config.width, 0.35 * this.game.config.height, "Waiting...", turnTextStyle);
@@ -38,7 +38,7 @@ class ShitHeadHandler extends GameScene {
             fontSize: 12,
             fixedWidth: 0.4 * this.game.config.width,
             align: "center",
-            fontFamily: "Wellfleet"
+            fontFamily: "Roboto"
         };
         this.gameModeButton = this.add.text(0.3 * this.game.config.width, 0.6 * this.game.config.height, "Gamemode: Normal", gameModeButtonStyle);
         this.gameModeButton.setInteractive();
@@ -66,7 +66,7 @@ class ShitHeadHandler extends GameScene {
             fontSize: 20,
             fixedWidth: 0.4 * this.game.config.width,
             align: "center",
-            fontFamily: "Wellfleet"
+            fontFamily: "Roboto"
         };
         this.readyButton = this.add.text(0.3 * this.game.config.width, 0.65 * this.game.config.height, "Ready", readyButtonStyle);
         this.readyButton.setInteractive();
@@ -91,7 +91,7 @@ class ShitHeadHandler extends GameScene {
             fontSize: 40,
             fixedWidth: buttonWidth,
             align: "center",
-            fontFamily: "Wellfleet"
+            fontFamily: "Roboto"
         };
 
         this.smileButton = this.add.text(leftMargin, buttonBarHeight, "smile", emojiButtonStyle)
@@ -152,7 +152,7 @@ class ShitHeadHandler extends GameScene {
         var takeStack = this.createNormalStack("take", 0, 0).setAngle(-45);
         takeStack.cardAmountText = this.add.text(5, 0, "", {
             fontSize: 20,
-            fontFamily: "Pacifico"
+            fontFamily: "Roboto"
         });
         takeStack.cardAmountText.setDepth(100000000);
 
@@ -218,7 +218,7 @@ class ShitHeadHandler extends GameScene {
                 fixedWidth: 0.5 * this.game.config.width,
                 align: "left",
                 fontSize: 16,
-                fontFamily: "Pacifico"
+                fontFamily: "Roboto"
             });
             player.finalStack1 = this.createNormalStack("inventory_final1", 0.07, 0.25, player);
             player.finalStack1.setAngle(90);
@@ -233,7 +233,7 @@ class ShitHeadHandler extends GameScene {
                 fixedWidth: 0.5 * this.game.config.width,
                 align: "center",
                 fontSize: 16,
-                fontFamily: "Pacifico"
+                fontFamily: "Roboto"
             });
             player.finalStack1 = this.createNormalStack("inventory_final3", 0.3, 0.04, player);
             player.finalStack2 = this.createNormalStack("inventory_final2", 0.5, 0.04, player);
@@ -246,7 +246,7 @@ class ShitHeadHandler extends GameScene {
                 fixedWidth: 0.48 * this.game.config.width,
                 align: "right",
                 fontSize: 16,
-                fontFamily: "Pacifico"
+                fontFamily: "Roboto"
             });
             player.finalStack1 = this.createNormalStack("inventory_final3", 0.93, 0.25, player);
             player.finalStack1.setAngle(-90);
