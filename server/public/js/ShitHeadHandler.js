@@ -80,34 +80,54 @@ class ShitHeadHandler extends GameScene {
         this.readyButton.visible = false;
         this.readyButton.setDepth(100000000);
 
+        var buttonWidth = 50;
+        var buttonCount = 4;
+        var buttonCountWithGaps = (buttonCount * 2) - 1;
+        var buttonBarWidth = buttonCountWithGaps * buttonWidth;
+        var leftMargin = (this.game.config.width - buttonBarWidth) / 2;
+        var buttonBarHeight = 0.70 * this.game.config.height;
         const emojiButtonStyle = {
-            padding: 6,
+            // padding: 6,
             fontSize: 40,
-            fixedWidth: 64,
+            fixedWidth: buttonWidth,
             align: "center",
             fontFamily: "Wellfleet"
         };
 
-        this.smileButton = this.add.text(0.1 * this.game.config.width, 0.95 * this.game.config.height, "smile", emojiButtonStyle)
+        this.smileButton = this.add.text(leftMargin, buttonBarHeight, "smile", emojiButtonStyle)
         this.smileButton.setInteractive();
         this.smileButton.text = "😊";
         this.smileButton.on("pointerdown", () => {
             this.server.send(`broadcastall chat ${this.localPlayer.name} 😊`);
         });
+        this.smileButton.setDepth(150);
 
-        this.frownButton = this.add.text(0.1 * this.game.config.width + 80, 0.95 * this.game.config.height, "frown", emojiButtonStyle)
+        this.frownButton = this.add.text(leftMargin + buttonWidth * 2, buttonBarHeight, "frown", emojiButtonStyle)
         this.frownButton.setInteractive();
         this.frownButton.text = "😒";
         this.frownButton.on("pointerdown", () => {
             this.server.send(`broadcastall chat ${this.localPlayer.name} 😒`);
         });
+        this.frownButton.setDepth(150);
 
-        this.tearsButton = this.add.text(0.1 * this.game.config.width + 160, 0.95 * this.game.config.height, "tears", emojiButtonStyle)
+        this.tearsButton = this.add.text(leftMargin + buttonWidth * 4, buttonBarHeight, "tears", emojiButtonStyle)
         this.tearsButton.setInteractive();
         this.tearsButton.text = "😢";
         this.tearsButton.on("pointerdown", () => {
             this.server.send(`broadcastall chat ${this.localPlayer.name} 😢`);
         });
+        this.tearsButton.setDepth(150);
+
+        this.takeButton = this.add.text(leftMargin + buttonWidth * 6, buttonBarHeight, "pickup", emojiButtonStyle)
+        this.takeButton.setInteractive();
+        this.takeButton.text = "👆";
+        this.takeButton.on("pointerdown", () => {
+            var throwStack = this.getStack("throw");
+            if (throwStack.containingCards.length > 0) {
+                this.takeThrowStack();
+            }
+        });
+        this.takeButton.setDepth(150);
 
         this.textEntry = this.add.text(200, 0.95 * this.game.config.height, '', {
             font: '32px Courier',
@@ -188,12 +208,6 @@ class ShitHeadHandler extends GameScene {
     createStacksForPlayer(player) {
         if (this.players.length === 1) // create inventories for the local/first player
         {
-            player.playerNameText = this.add.text(0.25 * this.game.config.width, 0.72 * this.game.config.height, "YOU", {
-                fixedWidth: 0.5 * this.game.config.width,
-                align: "center",
-                fontSize: 16,
-                fontFamily: "Pacifico"
-            });
             player.finalStack1 = this.createNormalStack("inventory_final1", 0.2, 0.85, player);
             player.finalStack2 = this.createNormalStack("inventory_final2", 0.5, 0.85, player);
             player.finalStack3 = this.createNormalStack("inventory_final3", 0.8, 0.85, player);
@@ -625,8 +639,6 @@ class ShitHeadHandler extends GameScene {
     }
 
     onTurnWillEnd(playerTurnEnd) {
-        playerTurnEnd.playerNameText.setColor("#fff");
-
         if (this.isAtTurn())
             this.takeMinCards();
 
@@ -639,7 +651,6 @@ class ShitHeadHandler extends GameScene {
         this.turnText.text = playerAtTurn.name + "'s turn!";
         this.turnText.setColor(this.isAtTurn() ? "#0f0" : "#fff");
         this.skipTurns = 1;
-        playerAtTurn.playerNameText.setColor("#0f0");
 
         if (this.isAtTurn()) {
             var shouldTryThrow = false;
