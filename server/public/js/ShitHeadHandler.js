@@ -551,7 +551,6 @@ class ShitHeadHandler extends GameScene {
                 var playerStage = this.getPlayerStage(this.playerAtTurn);
                 if (playerStage === 3) // if player is out
                 {
-                    this.playerAtTurn.playerNameText.setColor("#f0f");
                     if (!this.playerWon)
                         this.playerWon = this.playerAtTurn;
                     if (this.players.filter((pl) => this.getPlayerStage(pl) === 3).length >= this.players.length - 1) {
