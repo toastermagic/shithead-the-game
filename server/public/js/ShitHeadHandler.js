@@ -119,13 +119,8 @@ class ShitHeadHandler extends GameScene {
         this.input.keyboard.on('keydown', (event) => {
             if (event.keyCode === 8 && this.textEntry.text.length > 0) {
                 this.textEntry.text = this.textEntry.text.substr(0, this.textEntry.text.length - 1);
-
             } else if (event.keyCode === 13) {
-                if (this.textEntry.text === "boohoo") {
-                    this.server.send(`broadcast sound paul feelsbadman`);
-                } else {
-                    this.server.send(`broadcastall chat ${this.localPlayer.name} ${this.textEntry.text}`);
-                }
+                this.server.send(`broadcastall chat ${this.localPlayer.name} ${this.textEntry.text}`);
                 this.textEntry.text = "";
             } else if (event.key.length === 1) {
                 try {
