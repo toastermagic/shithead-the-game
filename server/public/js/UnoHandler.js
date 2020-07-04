@@ -43,13 +43,13 @@ class UnoHandler extends GameScene
         this.createStacksForPlayer(this.localPlayer);
 
         var takeStack = this.createNormalStack("take", 0, 0).setAngle(-45);
-        takeStack.cardAmountText = this.add.text(5, 0, "", {fontSize: 20, fontFamily: "Pacifico"});
+        takeStack.cardAmountText = this.add.text(5, 0, "", {fontSize: 20, fontFamily: "Roboto"});
         takeStack.cardAmountText.setDepth(100000000);
 
         var throwStack = this.createNormalStack("throw", 0.5, 0.5);
         throwStack.onCardWantsToGoHere = (card) => true;
 
-        const startButtonStyle = {backgroundColor: "#271", padding: 6, fontSize: 20, fixedWidth: 0.4 * this.game.config.width, align: "center", fontFamily: "Wellfleet"};
+        const startButtonStyle = {backgroundColor: "#271", padding: 6, fontSize: 20, fixedWidth: 0.4 * this.game.config.width, align: "center", fontFamily: "Roboto"};
         this.startButton = this.add.text(0.3 * this.game.config.width, 0.65 * this.game.config.height, "Ready", startButtonStyle);
         this.startButton.setInteractive();
         this.startButton.text = "Start Game";
@@ -66,22 +66,22 @@ class UnoHandler extends GameScene
     {
         if (this.players.length === 1)
         {
-            player.playerNameText = this.add.text(0.25 * config.width, 0.72 * config.height, "YOU", {fixedWidth: 0.5 * config.width, align: "center", fontSize: 16, fontFamily: "Pacifico"});
+            player.playerNameText = this.add.text(0.25 * config.width, 0.72 * config.height, "YOU", {fixedWidth: 0.5 * config.width, align: "center", fontSize: 16, fontFamily: "Roboto"});
             player.inventory = this.createInventoryStack("inventory", 0.5, 0.95, player);
         }
         else if (this.players.length === 2)
         {
-            player.playerNameText = this.add.text(0.02 * config.width, 0.62 * config.height, player.name, {fixedWidth: 0.5 * config.width, align: "left", fontSize: 16, fontFamily: "Pacifico"});
+            player.playerNameText = this.add.text(0.02 * config.width, 0.62 * config.height, player.name, {fixedWidth: 0.5 * config.width, align: "left", fontSize: 16, fontFamily: "Roboto"});
             player.inventory = this.createVerticalInventoryStack("inventory", 0, 0.4, player);
         }
         else if (this.players.length === 3)
         {
-            player.playerNameText = this.add.text(0.25 * config.width, 0.13 * config.height, player.name, {fixedWidth: 0.5 * config.width, align: "center", fontSize: 16, fontFamily: "Pacifico"});
+            player.playerNameText = this.add.text(0.25 * config.width, 0.13 * config.height, player.name, {fixedWidth: 0.5 * config.width, align: "center", fontSize: 16, fontFamily: "Roboto"});
             player.inventory = this.createInventoryStack("inventory", 0.5, 0, player);
         }
         else if (this.players.length === 4)
         {
-            player.playerNameText = this.add.text(0.5 * config.width, 0.62 * config.height, player.name, {fixedWidth: 0.48 * config.width, align: "right", fontSize: 16, fontFamily: "Pacifico"});
+            player.playerNameText = this.add.text(0.5 * config.width, 0.62 * config.height, player.name, {fixedWidth: 0.48 * config.width, align: "right", fontSize: 16, fontFamily: "Roboto"});
             player.inventory = this.createVerticalInventoryStack("inventory", 1, 0.4, player);
             player.inventory.cardRotationOffset = -90;
         }
