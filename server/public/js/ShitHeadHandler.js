@@ -114,7 +114,7 @@ class ShitHeadHandler extends GameScene {
         this.tearsButton.setInteractive();
         this.tearsButton.text = "😢";
         this.tearsButton.on("pointerdown", () => {
-            this.server.send(`broadcastall chat ${this.localPlayer.name} 😢`);
+            this.server.send(`broadcast sound ${this.localPlayer.name} feelsbadman`);
         });
         this.tearsButton.setDepth(150);
 
@@ -544,16 +544,29 @@ class ShitHeadHandler extends GameScene {
                     this.dealCards(throwStack, [this.getStack("burned")], throwStack.containingCards.length);
                     this.previouslyThrownValueThisRound = null;
                     this.takeMinCards();
-                } else if (newCard.cardValue === 7) {
-                    this.skipTurns++;
                 }
+                // } else if (newCard.cardValue === 7) {
+                //     this.skipTurns++;
+                // }
 
                 var playerStage = this.getPlayerStage(this.playerAtTurn);
                 if (playerStage === 3) // if player is out
                 {
-                    if (!this.playerWon)
+                    if (!this.playerWon) {
+                        // first winner
                         this.playerWon = this.playerAtTurn;
+                    }
+
+                    if (this.players.filter((pl) => this.getPlayerStage(pl) === 3).length < this.players.length - 1) {
+                        // still others playing
+                        var playerPoints = this.players.filter(p => p.playerStage === 0).length;
+                        console.log(`${playerPoints} points to ${this.playerAtTurn.localPlayerName}`);
+                    }
+
                     if (this.players.filter((pl) => this.getPlayerStage(pl) === 3).length >= this.players.length - 1) {
+                        var loser = this.players.filter((pl) => this.getPlayerStage(pl) !== 3)[0];
+                        console.log(`-1 to ${loser.localPlayerName} for being a shithead`);
+
                         this.turnText.text = this.playerWon.name + " won!";
                         this.turnText.setColor("#f0f");
                         this.readyButton.visible = false;
