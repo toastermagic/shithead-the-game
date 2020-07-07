@@ -98,7 +98,7 @@ class ShitHeadHandler extends GameScene {
         this.smileButton.setInteractive();
         this.smileButton.text = "😊";
         this.smileButton.on("pointerdown", () => {
-            this.server.send(`broadcastall chat ${this.localPlayer.name} 😊`);
+            this.server.send(`broadcast sound ${this.localPlayer.name} airhorn`);
         });
         this.smileButton.setDepth(150);
 
@@ -543,6 +543,7 @@ class ShitHeadHandler extends GameScene {
                     this.explosion.anims.play("explode");
                     this.dealCards(throwStack, [this.getStack("burned")], throwStack.containingCards.length);
                     this.previouslyThrownValueThisRound = null;
+                    // TODO: Important can't finish on a 10
                     this.takeMinCards();
                 }
                 // } else if (newCard.cardValue === 7) {
@@ -555,17 +556,24 @@ class ShitHeadHandler extends GameScene {
                     if (!this.playerWon) {
                         // first winner
                         this.playerWon = this.playerAtTurn;
+                        if (this.players.filter((pl) => this.getPlayerStage(pl) === 3).length < this.players.length - 1) {
+                            // still others playing
+                            this.players.forEach(p => console.log(`${p.name}:${this.getPlayerStage(p)}`));
+                            var playerPoints = this.players.filter(p => this.getPlayerStage(p) === 0).length > 0 ? 1 : 0;
+                            console.log(`${playerPoints} point to ${this.playerAtTurn.name}`);
+                            if (playerPoints > 0 && this.playerAtTurn.name === this.localPlayer.name) {
+                                console.log(`send win message`);
+                            }
+                        }
                     }
 
-                    if (this.players.filter((pl) => this.getPlayerStage(pl) === 3).length < this.players.length - 1) {
-                        // still others playing
-                        var playerPoints = this.players.filter(p => p.playerStage === 0).length;
-                        console.log(`${playerPoints} points to ${this.playerAtTurn.localPlayerName}`);
-                    }
 
                     if (this.players.filter((pl) => this.getPlayerStage(pl) === 3).length >= this.players.length - 1) {
                         var loser = this.players.filter((pl) => this.getPlayerStage(pl) !== 3)[0];
-                        console.log(`-1 to ${loser.localPlayerName} for being a shithead`);
+                        console.log(`-1 to ${loser.name} for being a shithead`);
+                        if (loser.name === this.localPlayer.name) {
+                            console.log(`send lose message`);
+                        }
 
                         this.turnText.text = this.playerWon.name + " won!";
                         this.turnText.setColor("#f0f");
