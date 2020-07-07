@@ -648,6 +648,25 @@ class DynamicCard extends Phaser.GameObjects.Sprite {
                 this.snapToTween.remove();
             }
         });
+
+        // this.on("pointerdown", (_pointer, isDouble) => {
+        //     if (!this.secondClick) {
+        //         this.secondClick = true;
+        //         setTimeout(300, () => {
+        //             this.secondClick = false;
+        //         }, this);
+        //         return;
+        //     }
+        //     const destStack = this.snappedToStack.onGetAllowedCardStacks(this);
+        //     if (!destStack || destStack.length !== 1)
+        //         return;
+
+        //     if (destStack[0].tryMoveCard(this)) {
+        //         this.scene.server.send("broadcast movecard " + this.cardIndex + " " + stackToString(destStack[0]))
+        //     }
+
+        //     this.snappedToStack.updateCardPositions();
+        // });
         this.on("dragend", () => {
 
             this.setDepth(this.dragStartDepth);
