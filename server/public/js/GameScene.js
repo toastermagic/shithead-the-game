@@ -207,6 +207,7 @@ class GameScene extends Phaser.Scene {
     onSound(sender, soundFile) {
         console.log(sender, soundFile);
         var snd = new Audio(`assets/sounds/${soundFile}.mp3`);
+        snd.volume = 0.3;
         snd.play();
     }
 
@@ -650,6 +651,7 @@ class DynamicCard extends Phaser.GameObjects.Sprite {
         });
 
         // this.on("pointerdown", (_pointer, isDouble) => {
+        //     this.flipCard(true);
         //     if (!this.secondClick) {
         //         this.secondClick = true;
         //         setTimeout(300, () => {

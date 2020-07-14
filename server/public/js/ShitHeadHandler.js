@@ -538,9 +538,12 @@ class ShitHeadHandler extends GameScene {
             throwStack.onAddedCardToTop = (newCard) => {
 
                 const burn = newCard.cardValue === 10 || throwStack.areTopCardsSameValue(4) || (newCard.cardType === JOKER && throwStack.areTopCardsSameValue(2)); // if the top 4 cards are the same, or a 10 is thrown, burn it
+                var won = false;
+
                 if (burn) {
                     console.log("BURN!!");
                     this.explosion.anims.play("explode");
+                    this.server.send(`burn ${this.playerAtTurn.name} ${throwStack.containingCards.length}`);
                     this.dealCards(throwStack, [this.getStack("burned")], throwStack.containingCards.length);
                     this.previouslyThrownValueThisRound = null;
                     // TODO: Important can't finish on a 10
@@ -553,6 +556,7 @@ class ShitHeadHandler extends GameScene {
                 var playerStage = this.getPlayerStage(this.playerAtTurn);
                 if (playerStage === 3) // if player is out
                 {
+                    won = true;
                     if (!this.playerWon) {
                         // first winner
                         this.playerWon = this.playerAtTurn;
@@ -561,8 +565,10 @@ class ShitHeadHandler extends GameScene {
                             this.players.forEach(p => console.log(`${p.name}:${this.getPlayerStage(p)}`));
                             var playerPoints = this.players.filter(p => this.getPlayerStage(p) === 0).length > 0 ? 1 : 0;
                             console.log(`${playerPoints} point to ${this.playerAtTurn.name}`);
-                            if (playerPoints > 0 && this.playerAtTurn.name === this.localPlayer.name) {
-                                console.log(`send win message`);
+                            if (this.playerAtTurn.name === this.localPlayer.name) {
+                                console.log(`sending win message`);
+                                this.server.send(`winner ${this.playerWon.name} ${playerPoints}`)
+                                return;
                             }
                         }
                     }
@@ -572,25 +578,27 @@ class ShitHeadHandler extends GameScene {
                         var loser = this.players.filter((pl) => this.getPlayerStage(pl) !== 3)[0];
                         console.log(`-1 to ${loser.name} for being a shithead`);
                         if (loser.name === this.localPlayer.name) {
-                            console.log(`send lose message`);
+                            console.log(`sending lose message`);
+                            this.server.send(`loser ${loser.name}`)
                         }
 
                         this.turnText.text = this.playerWon.name + " won!";
                         this.turnText.setColor("#f0f");
-                        this.readyButton.visible = false;
-                        this.server.send(`winner ${this.playerWon.name}`)
+
                         return;
                     }
                 }
 
                 if (this.isAtTurn()) // only the player at turn should run the following code
                 {
+                    this.server.send(`card ${this.playerAtTurn.name} ${newCard.cardValue}`);
+
                     if (this.turnStartPlayerStage !== playerStage) {
                         this.turnStartPlayerStage = playerStage;
                         this.previouslyThrownValueThisRound = null;
                     }
 
-                    if (!burn) {
+                    if (!burn || (burn && won)) {
                         this.readyButton.visible = true;
                     }
                 }
@@ -604,6 +612,7 @@ class ShitHeadHandler extends GameScene {
     takeThrowStack() {
         var throwStack = this.getStack("throw");
         this.server.send("broadcast deal " + throwStack.containingCards.length + " throw " + stackToString(this.localPlayer.inventory) + "|broadcastall turn " + this.getNextTurnPlayer().name);
+        this.server.send(`pickup ${this.localPlayer.name} ${throwStack.containingCards.length}`);
         this.dealCards(throwStack, [this.localPlayer.inventory], throwStack.containingCards.length);
         this.readyButton.visible = false;
     }

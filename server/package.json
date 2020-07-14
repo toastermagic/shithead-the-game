@@ -10,8 +10,10 @@
   "author": "Stijn Rogiest",
   "license": "ISC",
   "dependencies": {
+    "@influxdata/influxdb-client": "^1.4.0",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
+    "pg": "^8.3.0",
     "twig": "^1.14.0",
     "ws": "^7.2.1"
   }
