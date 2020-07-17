@@ -172,13 +172,13 @@ server.on("connection", (socket) => {
 
                 case "winner":
                     args.splice(0, 1);
-                    Scores.writeWinner(args[0], args[1]);
+                    Scores.writeResult(args[0], args[1]);
 
                     continue;
 
                 case "loser":
                     args.splice(0, 1);
-                    Scores.writeLoser(args[0]);
+                    Scores.writeResult(args[0], -1);
 
                     continue;
 
