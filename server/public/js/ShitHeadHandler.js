@@ -568,7 +568,6 @@ class ShitHeadHandler extends GameScene {
                             if (this.playerAtTurn.name === this.localPlayer.name) {
                                 console.log(`sending win message`);
                                 this.server.send(`winner ${this.playerWon.name} ${playerPoints}`)
-                                return;
                             }
                         }
                     }
