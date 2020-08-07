@@ -104,9 +104,9 @@ class ShitHeadHandler extends GameScene {
 
         this.frownButton = this.add.text(leftMargin + buttonWidth * 2, buttonBarHeight, "frown", emojiButtonStyle)
         this.frownButton.setInteractive();
-        this.frownButton.text = "😒";
+        this.frownButton.text = "🐶";
         this.frownButton.on("pointerdown", () => {
-            this.server.send(`broadcastall chat ${this.localPlayer.name} 😒`);
+            this.server.send(`broadcast sound ${this.localPlayer.name} you-son-of-a-bitch!`);
         });
         this.frownButton.setDepth(150);
 
@@ -145,7 +145,7 @@ class ShitHeadHandler extends GameScene {
             } else if (event.key.length === 1) {
                 try {
                     this.textEntry.text += event.key;
-                } catch {}
+                } catch (err) {}
             }
         });
 
@@ -546,7 +546,6 @@ class ShitHeadHandler extends GameScene {
                     this.server.send(`burn ${this.playerAtTurn.name} ${throwStack.containingCards.length}`);
                     this.dealCards(throwStack, [this.getStack("burned")], throwStack.containingCards.length);
                     this.previouslyThrownValueThisRound = null;
-                    // TODO: Important can't finish on a 10
                     this.takeMinCards();
                 }
                 // } else if (newCard.cardValue === 7) {
@@ -561,9 +560,8 @@ class ShitHeadHandler extends GameScene {
                         // first winner
                         this.playerWon = this.playerAtTurn;
                         if (this.players.filter((pl) => this.getPlayerStage(pl) === 3).length < this.players.length - 1) {
+                            var playerPoints = this.winningPoints(this.playerWon);
                             // still others playing
-                            this.players.forEach(p => console.log(`${p.name}:${this.getPlayerStage(p)}`));
-                            var playerPoints = this.players.filter(p => this.getPlayerStage(p) === 0).length > 0 ? 1 : 0;
                             console.log(`${playerPoints} point to ${this.playerAtTurn.name}`);
                             if (this.playerAtTurn.name === this.localPlayer.name) {
                                 console.log(`sending win message`);
@@ -571,7 +569,6 @@ class ShitHeadHandler extends GameScene {
                             }
                         }
                     }
-
 
                     if (this.players.filter((pl) => this.getPlayerStage(pl) === 3).length >= this.players.length - 1) {
                         var loser = this.players.filter((pl) => this.getPlayerStage(pl) !== 3)[0];
@@ -606,6 +603,17 @@ class ShitHeadHandler extends GameScene {
             // the player with the lowest card may start
             this.setTurn(this.getPlayerWithLowestCard().name);
         }
+    }
+
+    winningPoints(winningPlayer) {
+        var points = 0;
+        var otherPlayers = this.players.filter(p => p.name !== winningPlayer.name);
+        for (var index = 0; index < otherPlayers.length; index++) {
+            if (otherPlayers[index].finalStack1.containingCards.length + otherPlayers[index].finalStack2.containingCards.length + otherPlayers[index].finalStack3.containingCards.length === 6) {
+                points = 1;
+            }
+        }
+        return points;
     }
 
     takeThrowStack() {
