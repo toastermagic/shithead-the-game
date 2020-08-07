@@ -573,12 +573,15 @@ class CardInventory extends CardStack {
         });
     }
 
+    checkAce(card) {
+        return card.cardValue === 1 ? 15 : card.cardValue;
+    }
+
     sortCardsPerValue() {
 
-        checkAce = (card) => card.cardValue === 1 ? 15 : card.cardValue;
 
         this.containingCards.sort((a, b) => {
-            return (checkAce(a) * 10 + a.cardType) - (checkAce(b) * 10 + b.cardType)
+            return (this.checkAce(a) * 10 + a.cardType) - (this.checkAce(b) * 10 + b.cardType)
         });
         this.containingCards.forEach((card) => card.setDepth(currentCardDepth++))
         this.updateCardPositions();
